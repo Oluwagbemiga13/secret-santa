@@ -1,0 +1,10 @@
+services:
+  db:
+    image: postgres:15
+    container_name: santa_postgres
+    environment:
+      POSTGRES_DB: santaDB
+      POSTGRES_USER: changeMe
+      POSTGRES_PASSWORD: changeMe
+    ports:
+      - "5432:5432"

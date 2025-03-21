@@ -1,13 +1,11 @@
 package com.example.secret_santa;
 
-import com.example.secret_santa.repository.DBMock;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.util.Map;
 import java.util.stream.IntStream;
 
-import static com.example.secret_santa.repository.DBMock.fillDB;
 
 @SpringBootApplication
 public class SecretSantaApplication {
@@ -56,8 +54,6 @@ public class SecretSantaApplication {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
-		DBMock.fillDB();
 
 	}
 }
