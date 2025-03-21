@@ -1,4 +1,4 @@
-package com.example.secret_santa.dto;
+package cz.oluwagbemiga.santa.be.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

@@ -1,4 +1,4 @@
-package com.example.secret_santa.mapper;
+package cz.oluwagbemiga.santa.be.mapper;
 
 import java.util.List;
 

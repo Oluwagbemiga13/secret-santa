@@ -1,6 +1,6 @@
-package com.example.secret_santa.repository;
+package cz.oluwagbemiga.santa.be.repository;
 
-import com.example.secret_santa.entity.User;
+import cz.oluwagbemiga.santa.be.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserRepository extends JpaRepository<User, Long> {

@@ -1,9 +1,9 @@
-package com.example.secret_santa.service;
+package cz.oluwagbemiga.santa.be.service;
 
-import com.example.secret_santa.dto.UserDTO;
-import com.example.secret_santa.entity.User;
-import com.example.secret_santa.mapper.UserMapper;
-import com.example.secret_santa.repository.UserRepository;
+import cz.oluwagbemiga.santa.be.dto.UserDTO;
+import cz.oluwagbemiga.santa.be.entity.User;
+import cz.oluwagbemiga.santa.be.mapper.UserMapper;
+import cz.oluwagbemiga.santa.be.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

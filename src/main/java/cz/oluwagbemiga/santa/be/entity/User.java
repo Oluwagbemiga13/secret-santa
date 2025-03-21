@@ -1,4 +1,4 @@
-package com.example.secret_santa.entity;
+package cz.oluwagbemiga.santa.be.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

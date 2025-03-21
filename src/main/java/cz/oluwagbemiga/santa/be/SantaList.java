@@ -1,4 +1,4 @@
-package com.example.secret_santa;
+package cz.oluwagbemiga.santa.be;
 
 import java.util.*;
 import java.util.stream.IntStream;

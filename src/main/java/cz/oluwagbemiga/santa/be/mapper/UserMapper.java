@@ -1,8 +1,8 @@
-package com.example.secret_santa.mapper;
+package cz.oluwagbemiga.santa.be.mapper;
 
 
-import com.example.secret_santa.dto.UserDTO;
-import com.example.secret_santa.entity.User;
+import cz.oluwagbemiga.santa.be.dto.UserDTO;
+import cz.oluwagbemiga.santa.be.entity.User;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")

@@ -1,4 +1,4 @@
-package com.example.secret_santa.service;
+package cz.oluwagbemiga.santa.be.service;
 
 
 import org.springframework.stereotype.Service;

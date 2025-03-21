@@ -1,7 +1,4 @@
-package com.example.secret_santa.dto;
-
-import lombok.Getter;
-import lombok.Setter;
+package cz.oluwagbemiga.santa.be.dto;
 
 import java.util.ArrayList;
 import java.util.List;

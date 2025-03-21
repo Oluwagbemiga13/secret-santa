@@ -1,4 +1,4 @@
-package com.example.secret_santa;
+package cz.oluwagbemiga.santa.be;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -1,9 +1,8 @@
-package com.example.secret_santa.controller;
+package cz.oluwagbemiga.santa.be.controller;
 
 
-import com.example.secret_santa.dto.UserDTO;
-import com.example.secret_santa.entity.User;
-import com.example.secret_santa.service.UserService;
+import cz.oluwagbemiga.santa.be.dto.UserDTO;
+import cz.oluwagbemiga.santa.be.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
