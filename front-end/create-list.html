@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create Santa's List</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      .dashboard-content {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        flex-direction: row;
+      }
+
+      .dashboard-container {
+        background-color: #ffffff;
+        border: 4px solid #006400;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 8px 8px rgba(0, 0, 0, 0.2);
+        width: 95%;
+        max-width: 1400px;
+        margin: 20px auto;
+        height: 80vh; /* Changed from min-height to fixed height */
+        overflow: hidden; /* Hide overflow on main container */
+      }
+
+      #person-list {
+        flex: 3;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        height: 100%; /* Take full height of parent */
+        overflow: hidden; /* Hide overflow */
+      }
+
+      .cards-container {
+        flex: 1;
+        overflow-y: auto;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-bottom: 40px; /* Add space for buttons */
+      }
+
+      .person-card {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        background-color: #fff;
+        padding: 15px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        width: 90%;
+        margin: 0 auto;
+        box-sizing: border-box;
+      }
+
+      .person-card .delete-button {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 8px;
+        cursor: pointer;
+        height: 36px;
+        width: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .person-card .inputs-container {
+        display: flex;
+        flex: 1;
+        gap: 20px;
+      }
+
+      .person-card .input-group {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+      }
+
+      .person-card label {
+        margin-bottom: 5px;
+        color: #495057;
+      }
+
+      .person-card input {
+        padding: 8px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+
+      .buttons-container {
+        position: sticky;
+        bottom: 0;
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        width: 90%;
+        margin: 0 auto;
+        padding: 15px;
+        background-color: #fff;
+        z-index: 10;
+      }
+
+      .action-button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #e0ffe0;
+        border: 2px dashed #006400;
+        cursor: pointer;
+        color: #006400;
+        text-align: center;
+        padding: 8px 12px;
+        border-radius: 5px;
+        width: 50%;
+        font-size: 14px;
+      }
+
+      .action-button:hover {
+        background-color: #8cd78c;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="dashboard-container">
+      <div class="dashboard-header">
+        <h1>Create Santa's List</h1>
+        <nav>
+          <a href="dashboard.html">Dashboard</a>
+          <a href="#">Profile</a>
+          <a href="#">Logout</a>
+        </nav>
+      </div>
+      <div class="dashboard-content">
+        <!-- Left: Person Cards -->
+        <!-- Replace the person-list div content with this structure -->
+        <div id="person-list">
+          <div class="cards-container">
+            <!-- Person cards will go here -->
+            <div class="person-card">
+              <!-- Initial person card content -->
+            </div>
+          </div>
+          <div class="buttons-container">
+            <button type="button" id="add-person-button" class="action-button">
+              Add Person
+            </button>
+            <button
+              type="submit"
+              id="save-list-button"
+              class="action-button save"
+            >
+              Save List
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      let personCount = 3;
+
+      // Function to create a new person card
+      function createPersonCard(index) {
+        const newPerson = document.createElement("div");
+        newPerson.classList.add("person-card");
+        newPerson.innerHTML = `                
+                <button class="delete-button" onclick="deletePerson(this)">×</button>
+                <div class="inputs-container">
+                    <div class="input-group">
+                        <label for="name-${index}">Name:</label>
+                        <input type="text" id="name-${index}" name="name-${index}" placeholder="Enter name" required />
+                    </div>
+                    <div class="input-group">
+                        <label for="email-${index}">Email:</label>
+                        <input type="email" id="email-${index}" name="email-${index}" placeholder="Enter email" required />
+                    </div>
+                </div>`;
+        return newPerson;
+      }
+
+      function deletePerson(button) {
+        button.closest(".person-card").remove();
+      }
+
+      // Add initial 3 person cards when page loads
+      window.addEventListener("DOMContentLoaded", () => {
+        const cardsContainer = document.querySelector(".cards-container");
+        cardsContainer.innerHTML = ""; // Clear any existing cards
+
+        for (let i = 1; i <= 3; i++) {
+          cardsContainer.appendChild(createPersonCard(i));
+        }
+      });
+
+      // Add new person card when button is clicked
+      document
+        .getElementById("add-person-button")
+        .addEventListener("click", () => {
+          personCount++;
+          const cardsContainer = document.querySelector(".cards-container");
+          cardsContainer.appendChild(createPersonCard(personCount));
+        });
+    </script>
+  </body>
+</html>

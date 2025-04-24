@@ -2,30 +2,21 @@ package cz.oluwagbemiga.santa.be.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
-public class UserDTO {
+import java.util.UUID;
 
-    private Long id;
+public record UserDTO(
 
-    @NotBlank(message = "Username is required")
-    private String username;
+        UUID uuid,
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Please provide a valid email address")
-    private String email;
+        @NotBlank(message = "Username is required")
+        String username,
 
-    private String password;
+        @NotBlank(message = "Email is required")
+        @Email(message = "Please provide a valid email address")
+        String email,
 
-    public UserDTO() {}
-
-    public UserDTO(String username, String email, String password) {
-        this.username = username;
-        this.email = email;
-        this.password = password;
-    }
+        @NotBlank(message = "Email is required")
+        String password
+) {
 }

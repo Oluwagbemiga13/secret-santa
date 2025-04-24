@@ -9,6 +9,7 @@ import cz.oluwagbemiga.santa.be.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +34,7 @@ public class AuthService {
             throw new RuntimeException("Invalid password");
         }
 
-        String token = jwtUtil.generateToken(username);
+        String token = jwtUtil.generateToken(user.getUuid(), user.getRole());
         return new AuthResponse(token, username);
     }
 }

@@ -3,7 +3,7 @@ package cz.oluwagbemiga.santa.be;
 import java.util.*;
 import java.util.stream.IntStream;
 
-public class SantaList {
+public class SantaListDemo {
 
     private boolean isLocked = false;
     private List<Map.Entry<String, String>> in = new ArrayList<>();
