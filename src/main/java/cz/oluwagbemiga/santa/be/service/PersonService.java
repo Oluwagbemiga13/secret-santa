@@ -7,12 +7,22 @@ import cz.oluwagbemiga.santa.be.repository.PersonRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @Service
 public class PersonService {
 
     private final PersonRepository personRepository;
     private final PersonMapper personMapper;
+
+    public List<PersonDTO> getBySantasListId(Long santasListId) {
+        // Fetch all persons associated with the given Santa's list ID
+        List<Person> persons = personRepository.findBySantasListId(santasListId);
+
+        // Map the entities to DTOs
+        return personMapper.toDto(persons);
+    }
 
     public PersonDTO createPerson(Person person) {
         Person savedPerson = personRepository.save(person);

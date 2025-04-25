@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/persons")
@@ -66,5 +68,11 @@ public class PersonController {
     public ResponseEntity<Void> deletePerson(@PathVariable Long id) {
         personService.deletePerson(id);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/persons/santas-list/{santasListId}")
+    public List<PersonDTO> getPersonBySantasListId(@PathVariable Long santasListId) {
+        return personService.getBySantasListId(santasListId);
+
     }
 }
