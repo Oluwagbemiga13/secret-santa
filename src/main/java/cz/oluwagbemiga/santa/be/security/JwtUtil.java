@@ -69,7 +69,7 @@ public class JwtUtil {
         return claims.getSubject();
     }
 
-    public String getRoleFromJWT(String token){
+    public String getRoleFromJWT(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()

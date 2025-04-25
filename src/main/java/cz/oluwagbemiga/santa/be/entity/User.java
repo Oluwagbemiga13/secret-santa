@@ -35,6 +35,7 @@ public class User {
         santasList.setOwner(this);
         santasLists.add(santasList);
     }
+
     public void removeSantasList(SantasList santasList) {
         santasList.setOwner(null);
         santasLists.remove(santasList);

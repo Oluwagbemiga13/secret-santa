@@ -28,8 +28,9 @@ public class SantaListDemo {
                     if (i == in.size() - 1) {
                         System.out.println("DEBUG:Index " + in.size() + " out of bounds for length " + in.size() + ". Getting index 0 instead.");
                         out.put(in.get(i).getKey(), in.get(0));
+                    } else {
+                        out.put(in.get(i).getKey(), in.get(i + 1));
                     }
-                    else {out.put(in.get(i).getKey(), in.get(i + 1));}
                 });
         System.out.println("Shuffled.");
 

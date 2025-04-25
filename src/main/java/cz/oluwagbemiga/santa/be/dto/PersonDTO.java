@@ -8,4 +8,5 @@ public record PersonDTO(
         String email,
         String desiredGift,
         UUID recipientId
-) {}
+) {
+}

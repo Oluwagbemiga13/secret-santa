@@ -3,19 +3,16 @@ package cz.oluwagbemiga.santa.be;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.util.Map;
-import java.util.stream.IntStream;
-
 
 @SpringBootApplication
 public class SecretSantaApplication {
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
 
 //		test(args);
 
-		SpringApplication.run(SecretSantaApplication.class, args);
-	}
+        SpringApplication.run(SecretSantaApplication.class, args);
+    }
 
 //	static void test(String[] args){
 //

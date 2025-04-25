@@ -3,7 +3,6 @@ package cz.oluwagbemiga.santa.be.service;
 import cz.oluwagbemiga.santa.be.dto.AuthResponse;
 import cz.oluwagbemiga.santa.be.entity.User;
 import cz.oluwagbemiga.santa.be.exception.UserLoginException;
-import cz.oluwagbemiga.santa.be.mapper.UserMapper;
 import cz.oluwagbemiga.santa.be.repository.UserRepository;
 import cz.oluwagbemiga.santa.be.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
