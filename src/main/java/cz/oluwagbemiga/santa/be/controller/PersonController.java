@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -65,13 +66,13 @@ public class PersonController {
             }
     )
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePerson(@PathVariable Long id) {
+    public ResponseEntity<Void> deletePerson(@PathVariable UUID id) {
         personService.deletePerson(id);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/persons/santas-list/{santasListId}")
-    public List<PersonDTO> getPersonBySantasListId(@PathVariable Long santasListId) {
+    public List<PersonDTO> getPersonBySantasListId(@PathVariable UUID santasListId) {
         return personService.getBySantasListId(santasListId);
 
     }

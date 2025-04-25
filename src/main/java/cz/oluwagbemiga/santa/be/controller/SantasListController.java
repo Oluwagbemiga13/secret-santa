@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/santas-lists")
@@ -25,42 +27,42 @@ public class SantasListController {
 
     @Operation(summary = "Get a Santa's list by ID")
     @GetMapping("/{id}")
-    public ResponseEntity<SantasListDTO> getSantasListById(@PathVariable Long id) {
+    public ResponseEntity<SantasListDTO> getSantasListById(@PathVariable UUID id) {
         SantasListDTO santasList = santasListService.getSantasListById(id);
         return ResponseEntity.ok(santasList);
     }
 
     @Operation(summary = "Update a Santa's list")
     @PutMapping("/{id}")
-    public ResponseEntity<SantasListDTO> updateSantasList(@PathVariable Long id, @RequestBody @Valid SantasListDTO santasListDTO) {
+    public ResponseEntity<SantasListDTO> updateSantasList(@PathVariable UUID id, @RequestBody @Valid SantasListDTO santasListDTO) {
         SantasListDTO updatedList = santasListService.updateSantasList(id, santasListDTO);
         return ResponseEntity.ok(updatedList);
     }
 
     @Operation(summary = "Delete a Santa's list")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteSantasList(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteSantasList(@PathVariable UUID id) {
         santasListService.deleteSantasList(id);
         return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Add a person to a Santa's list")
     @PostMapping("/{id}/persons")
-    public ResponseEntity<SantasListDTO> addPersonToSantasList(@PathVariable Long id, @RequestBody @Valid PersonDTO personDTO) {
+    public ResponseEntity<SantasListDTO> addPersonToSantasList(@PathVariable UUID id, @RequestBody @Valid PersonDTO personDTO) {
         SantasListDTO updatedList = santasListService.addPersonToSantasList(id, personDTO);
         return ResponseEntity.ok(updatedList);
     }
 
     @Operation(summary = "Edit a person in a Santa's list")
     @PutMapping("/{id}/persons/{personId}")
-    public ResponseEntity<SantasListDTO> editPersonInSantasList(@PathVariable Long id, @PathVariable Long personId, @RequestBody @Valid PersonDTO personDTO) {
+    public ResponseEntity<SantasListDTO> editPersonInSantasList(@PathVariable UUID id, @PathVariable Long personId, @RequestBody @Valid PersonDTO personDTO) {
         SantasListDTO updatedList = santasListService.editPersonInSantasList(id, personId, personDTO);
         return ResponseEntity.ok(updatedList);
     }
 
     @Operation(summary = "Delete a person from a Santa's list")
     @DeleteMapping("/{id}/persons/{personId}")
-    public ResponseEntity<SantasListDTO> deletePersonFromSantasList(@PathVariable Long id, @PathVariable Long personId) {
+    public ResponseEntity<SantasListDTO> deletePersonFromSantasList(@PathVariable UUID id, @PathVariable Long personId) {
         SantasListDTO updatedList = santasListService.deletePersonFromSantasList(id, personId);
         return ResponseEntity.ok(updatedList);
     }

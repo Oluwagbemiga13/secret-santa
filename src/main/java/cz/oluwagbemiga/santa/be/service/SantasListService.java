@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -28,29 +29,28 @@ public class SantasListService {
     public SantasListDTO createSantasList(SantasListDTO santasListDTO) {
         String userUuid = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        SantasList newList = santasListRepository.save(
-                SantasList.builder()
-                        .creationDate(LocalDate.now())
-                        .dueDate(santasListDTO.dueDate())
-                        .name(santasListDTO.name())
-                        .owner(userService.findUserById(userUuid))
-                        .build());
+        SantasList newList = SantasList.builder()
+                .creationDate(LocalDate.now())
+                .dueDate(santasListDTO.dueDate())
+                .name(santasListDTO.name())
+                .owner(userService.findUserById(userUuid))
+                .build();
 
-        santasListDTO.persons()
-                .forEach(e ->
-                        personService.createPerson(
-                                Person.builder()
-                                .name(e.name())
-                                .email(e.email())
-                                .desiredGift(e.desiredGift())
-                                .santasList(newList)
-                                .build()));
+        // Use the proper bidirectional relationship management
+        santasListDTO.persons().forEach(personDTO -> {
+            Person person = Person.builder()
+                    .name(personDTO.name())
+                    .email(personDTO.email())
+                    .desiredGift(personDTO.desiredGift())
+                    .build();
+            newList.addPerson(person); // This method handles both sides of the relationship
+        });
 
-        return santasListMapper.toDto(santasListRepository.findById(newList.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Santa's list not found with ID: " + newList.getId())));
+        SantasList savedList = santasListRepository.save(newList);
+        return santasListMapper.toDto(savedList);
     }
 
-    public SantasListDTO editPersonInSantasList(Long santasListId, Long personId, PersonDTO updatedPersonDTO) {
+    public SantasListDTO editPersonInSantasList(UUID santasListId, Long personId, PersonDTO updatedPersonDTO) {
         SantasList santasList = santasListRepository.findById(santasListId)
                 .orElseThrow(() -> new IllegalArgumentException("Santa's list not found with ID: " + santasListId));
 
@@ -67,7 +67,7 @@ public class SantasListService {
         return santasListMapper.toDto(updatedSantasList);
     }
 
-    public SantasListDTO deletePersonFromSantasList(Long santasListId, Long personId) {
+    public SantasListDTO deletePersonFromSantasList(UUID santasListId, Long personId) {
         SantasList santasList = santasListRepository.findById(santasListId)
                 .orElseThrow(() -> new IllegalArgumentException("Santa's list not found with ID: " + santasListId));
 
@@ -82,7 +82,7 @@ public class SantasListService {
         return santasListMapper.toDto(updatedSantasList);
     }
 
-    public SantasListDTO addPersonToSantasList(Long santasListId, PersonDTO newPersonDTO) {
+    public SantasListDTO addPersonToSantasList(UUID santasListId, PersonDTO newPersonDTO) {
         SantasList santasList = santasListRepository.findById(santasListId)
                 .orElseThrow(() -> new IllegalArgumentException("Santa's list not found with ID: " + santasListId));
 
@@ -102,7 +102,7 @@ public class SantasListService {
      * @param santasListDTO
      * @return
      */
-    public SantasListDTO updateSantasList(Long id, SantasListDTO santasListDTO) {
+    public SantasListDTO updateSantasList(UUID id, SantasListDTO santasListDTO) {
         SantasList santasList = santasListRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Santa's list not found with ID: " + id));
 
@@ -113,14 +113,14 @@ public class SantasListService {
         return santasListMapper.toDto(updatedSantasList);
     }
 
-    public void deleteSantasList(Long id) {
+    public void deleteSantasList(UUID id) {
         if (!santasListRepository.existsById(id)) {
             throw new IllegalArgumentException("Santa's list not found with ID: " + id);
         }
         santasListRepository.deleteById(id);
     }
 
-    public SantasListDTO getSantasListById(Long id) {
+    public SantasListDTO getSantasListById(UUID id) {
         SantasList santasList = santasListRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Santa's list not found with ID: " + id));
         return santasListMapper.toDto(santasList);

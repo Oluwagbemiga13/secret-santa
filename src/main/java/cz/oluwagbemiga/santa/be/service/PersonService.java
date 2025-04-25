@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
@@ -16,7 +17,7 @@ public class PersonService {
     private final PersonRepository personRepository;
     private final PersonMapper personMapper;
 
-    public List<PersonDTO> getBySantasListId(Long santasListId) {
+    public List<PersonDTO> getBySantasListId(UUID santasListId) {
         // Fetch all persons associated with the given Santa's list ID
         List<Person> persons = personRepository.findBySantasListId(santasListId);
 
@@ -38,7 +39,7 @@ public class PersonService {
         return personMapper.toDto(savedPerson);
     }
 
-    public void deletePerson(Long personId) {
+    public void deletePerson(UUID personId) {
         // Delete the person by ID
         personRepository.deleteById(personId);
     }
