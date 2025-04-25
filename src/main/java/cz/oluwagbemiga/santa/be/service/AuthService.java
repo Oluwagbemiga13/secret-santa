@@ -1,40 +1,42 @@
 package cz.oluwagbemiga.santa.be.service;
 
 import cz.oluwagbemiga.santa.be.dto.AuthResponse;
-import cz.oluwagbemiga.santa.be.dto.RegisterRequest;
 import cz.oluwagbemiga.santa.be.entity.User;
+import cz.oluwagbemiga.santa.be.exception.UserLoginException;
 import cz.oluwagbemiga.santa.be.mapper.UserMapper;
 import cz.oluwagbemiga.santa.be.repository.UserRepository;
 import cz.oluwagbemiga.santa.be.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class AuthService {
 
-    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
-
     private final UserRepository userRepository;
-    private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
-
-
     public AuthResponse authenticate(String username, String password) {
+        log.debug("Attempting to authenticate user: {}", username);
+
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> {
+                    log.error("User not found: {}", username);
+                    return new UserLoginException("Invalid username or password");
+                });
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new RuntimeException("Invalid password");
+            log.error("Invalid password for user: {}", username);
+            throw new UserLoginException("Invalid username or password");
         }
 
         String token = jwtUtil.generateToken(user.getUuid(), user.getRole());
+        log.debug("Authentication successful for user: {}", username);
+
         return new AuthResponse(token, username);
     }
 }

@@ -3,6 +3,7 @@ package cz.oluwagbemiga.santa.be.service;
 import cz.oluwagbemiga.santa.be.dto.AuthResponse;
 import cz.oluwagbemiga.santa.be.entity.Role;
 import cz.oluwagbemiga.santa.be.entity.User;
+import cz.oluwagbemiga.santa.be.exception.UserLoginException;
 import cz.oluwagbemiga.santa.be.repository.UserRepository;
 import cz.oluwagbemiga.santa.be.security.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -72,7 +73,7 @@ class AuthServiceTest {
         log.info("Testing authentication with non-existent user: {}", TEST_USERNAME);
         when(userRepository.findByUsername(TEST_USERNAME)).thenReturn(Optional.empty());
 
-        RuntimeException exception = assertThrows(RuntimeException.class,
+        RuntimeException exception = assertThrows(UserLoginException.class,
                 () -> authService.authenticate(TEST_USERNAME, TEST_PASSWORD));
 
         log.info("Expected exception thrown: {}", exception.getMessage());
@@ -84,7 +85,7 @@ class AuthServiceTest {
         when(userRepository.findByUsername(TEST_USERNAME)).thenReturn(Optional.of(testUser));
         when(passwordEncoder.matches(TEST_PASSWORD, testUser.getPassword())).thenReturn(false);
 
-        RuntimeException exception = assertThrows(RuntimeException.class,
+        RuntimeException exception = assertThrows(UserLoginException.class,
                 () -> authService.authenticate(TEST_USERNAME, TEST_PASSWORD));
 
         log.info("Expected exception thrown: {}", exception.getMessage());

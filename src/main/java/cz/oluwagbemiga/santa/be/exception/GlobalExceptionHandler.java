@@ -1,5 +1,6 @@
 package cz.oluwagbemiga.santa.be.exception;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -7,6 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+@Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -14,6 +16,15 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleUserRegistrationException(UserRegistrationException ex) {
         ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(UserLoginException.class)
+    public ResponseEntity<ErrorResponse> handleUserLoginException(UserLoginException ex) {
+        log.error("Login failed: {}", ex.getMessage());
+        return new ResponseEntity<>(
+                new ErrorResponse(HttpStatus.UNAUTHORIZED.value(),ex.getMessage()),
+                HttpStatus.UNAUTHORIZED
+        );
     }
 
 
