@@ -5,6 +5,8 @@ import cz.oluwagbemiga.santa.be.dto.SantasListDTO;
 import cz.oluwagbemiga.santa.be.dto.SantasListOverview;
 import cz.oluwagbemiga.santa.be.entity.Person;
 import cz.oluwagbemiga.santa.be.entity.SantasList;
+import cz.oluwagbemiga.santa.be.exception.ResourceNotFoundException;
+import cz.oluwagbemiga.santa.be.exception.UnauthorizedAccessException;
 import cz.oluwagbemiga.santa.be.mapper.PersonMapper;
 import cz.oluwagbemiga.santa.be.mapper.SantasListMapper;
 import cz.oluwagbemiga.santa.be.repository.SantasListRepository;
@@ -54,7 +56,7 @@ public class SantasListService {
 
     public SantasListDTO editPersonInSantasList(UUID santasListId, Long personId, PersonDTO updatedPersonDTO) {
         SantasList santasList = santasListRepository.findById(santasListId)
-                .orElseThrow(() -> new IllegalArgumentException("Santa's list not found with ID: " + santasListId));
+                .orElseThrow(() -> new ResourceNotFoundException("Santa's list not found with ID: " + santasListId));
 
         Person person = santasList.getPersons().stream()
                 .filter(p -> p.getId().equals(personId))
@@ -76,7 +78,7 @@ public class SantasListService {
         Person person = santasList.getPersons().stream()
                 .filter(p -> p.getId().equals(personId))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Person not found with ID: " + personId));
+                .orElseThrow(() -> new ResourceNotFoundException("Person not found with ID: " + personId));
 
         santasList.getPersons().remove(person);
 
@@ -86,7 +88,7 @@ public class SantasListService {
 
     public SantasListDTO addPersonToSantasList(UUID santasListId, PersonDTO newPersonDTO) {
         SantasList santasList = santasListRepository.findById(santasListId)
-                .orElseThrow(() -> new IllegalArgumentException("Santa's list not found with ID: " + santasListId));
+                .orElseThrow(() -> new ResourceNotFoundException("Santa's list not found with ID: " + santasListId));
 
         Person newPerson = personMapper.toEntity(newPersonDTO);
         newPerson.setSantasList(santasList);
@@ -106,7 +108,7 @@ public class SantasListService {
      */
     public SantasListDTO updateSantasList(UUID id, SantasListDTO santasListDTO) {
         SantasList santasList = santasListRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Santa's list not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Santa's list not found with ID: " + id));
 
         santasList.setName(santasListDTO.name());
         santasList.setDueDate(santasListDTO.dueDate());
@@ -114,9 +116,10 @@ public class SantasListService {
         SantasList updatedSantasList = santasListRepository.save(santasList);
         return santasListMapper.toDto(updatedSantasList);
     }
+
     @PreAuthorize("hasRole('ROLE_USER')")
     public List<SantasListOverview> getListsOverviewsByUserId() {
-        UUID userId = UUID.fromString((String)SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        UUID userId = UUID.fromString((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         return santasListRepository.findAllByOwnerUuid(userId)
                 .stream()
                 .map(SantasListOverview::new)
@@ -124,8 +127,13 @@ public class SantasListService {
     }
 
     public void deleteSantasList(UUID id) {
-        if (!santasListRepository.existsById(id)) {
-            throw new IllegalArgumentException("Santa's list not found with ID: " + id);
+        UUID userId = UUID.fromString((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        if (santasListRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("Santa's list not found with ID: " + id))
+                .getOwner()
+                .getUuid()
+                .equals(userId)) {
+            throw new UnauthorizedAccessException("You are not authorized to delete this Santa's list");
         }
         santasListRepository.deleteById(id);
     }

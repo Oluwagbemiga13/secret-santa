@@ -12,6 +12,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         window.location.href = "/login.html";
     });
 
+    // Add event listener for the create new list button
+    const addCardButton = document.getElementById("add-card-button");
+    addCardButton.addEventListener("click", () => {
+        window.location.href = "/create-list.html";
+    });
+
     try {
         const response = await fetch("http://localhost:8080/api/santas-lists/get-overviews", {
             method: "GET",
@@ -72,6 +78,32 @@ function createListCard(list) {
             </div>
         </div>
     `;
+
+    // Add delete button event listener
+    const deleteButton = card.querySelector('.delete-button');
+    deleteButton.addEventListener('click', async () => {
+        if (confirm('Are you sure you want to delete this list?')) {
+            try {
+                const authToken = localStorage.getItem("authToken");
+                const response = await fetch(`http://localhost:8080/api/santas-lists/${list.id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                // Remove the card from the UI
+                card.remove();
+            } catch (error) {
+                console.error('Error deleting list:', error);
+                alert('Failed to delete the list. Please try again later.');
+            }
+        }
+    });
 
     return card;
 }
