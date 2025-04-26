@@ -2,6 +2,7 @@ package cz.oluwagbemiga.santa.be.service;
 
 import cz.oluwagbemiga.santa.be.dto.PersonDTO;
 import cz.oluwagbemiga.santa.be.dto.SantasListDTO;
+import cz.oluwagbemiga.santa.be.dto.SantasListOverview;
 import cz.oluwagbemiga.santa.be.entity.Person;
 import cz.oluwagbemiga.santa.be.entity.SantasList;
 import cz.oluwagbemiga.santa.be.mapper.PersonMapper;
@@ -13,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -111,6 +113,14 @@ public class SantasListService {
 
         SantasList updatedSantasList = santasListRepository.save(santasList);
         return santasListMapper.toDto(updatedSantasList);
+    }
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public List<SantasListOverview> getListsOverviewsByUserId() {
+        UUID userId = UUID.fromString((String)SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        return santasListRepository.findAllByOwnerUuid(userId)
+                .stream()
+                .map(SantasListOverview::new)
+                .toList();
     }
 
     public void deleteSantasList(UUID id) {

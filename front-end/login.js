@@ -23,7 +23,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if (response.ok) {
         const data = await response.json();
         alert("Login successful! Token: " + data.token);
-        // Optionally, save the token to localStorage or redirect the user
         localStorage.setItem("authToken", data.token);
         window.location.href = "/dashboard.html"; // Redirect to a dashboard page
       } else {

@@ -2,6 +2,7 @@ package cz.oluwagbemiga.santa.be.controller;
 
 import cz.oluwagbemiga.santa.be.dto.PersonDTO;
 import cz.oluwagbemiga.santa.be.dto.SantasListDTO;
+import cz.oluwagbemiga.santa.be.dto.SantasListOverview;
 import cz.oluwagbemiga.santa.be.service.SantasListService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -65,6 +67,12 @@ public class SantasListController {
     public ResponseEntity<SantasListDTO> deletePersonFromSantasList(@PathVariable UUID id, @PathVariable Long personId) {
         SantasListDTO updatedList = santasListService.deletePersonFromSantasList(id, personId);
         return ResponseEntity.ok(updatedList);
+    }
+
+    @Operation(summary = "Get SantasListOverviews")
+    @GetMapping("/get-overviews")
+    public List<SantasListOverview> getSantasListOverviews() {
+        return santasListService.getListsOverviewsByUserId();
     }
 
 }
