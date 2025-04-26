@@ -11,6 +11,7 @@ import cz.oluwagbemiga.santa.be.mapper.PersonMapper;
 import cz.oluwagbemiga.santa.be.mapper.SantasListMapper;
 import cz.oluwagbemiga.santa.be.repository.SantasListRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -18,9 +19,11 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SantasListService {
 
     private final SantasListRepository santasListRepository;
@@ -107,13 +110,57 @@ public class SantasListService {
      * @return
      */
     public SantasListDTO updateSantasList(UUID id, SantasListDTO santasListDTO) {
+        log.info("Starting update for SantasList ID: {}", id);
+
         SantasList santasList = santasListRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Santa's list not found with ID: " + id));
+        log.debug("Found existing SantasList: {}, with {} persons", santasList.getName(), santasList.getPersons().size());
 
         santasList.setName(santasListDTO.name());
         santasList.setDueDate(santasListDTO.dueDate());
 
+        log.info("Current persons in list: {}",
+                santasList.getPersons().stream()
+                        .map(p -> String.format("ID: %s, Name: %s", p.getId(), p.getName()))
+                        .collect(Collectors.joining(", "))
+        );
+
+        log.info("Incoming persons in DTO: {}",
+                santasListDTO.persons().stream()
+                        .map(p -> String.format("ID: %s, Name: %s", p.id(), p.name()))
+                        .collect(Collectors.joining(", "))
+        );
+
+        // Clear the persons collection and rebuild it
+        santasList.getPersons().clear();
+        log.debug("Cleared existing persons collection");
+
+        // Update/create persons
+        santasListDTO.persons().forEach(personDTO -> {
+            Person person;
+            if (personDTO.id() != null) {
+                log.debug("Attempting to update existing person with ID: {}", personDTO.id());
+                try {
+                    person = personService.findById(personDTO.id());
+                    log.info("Found existing person: {} (ID: {})", person.getName(), person.getId());
+                    person.setName(personDTO.name());
+                    person.setEmail(personDTO.email());
+                    person.setDesiredGift(personDTO.desiredGift());
+                } catch (ResourceNotFoundException e) {
+                    log.warn("Person with ID {} not found, creating new", personDTO.id());
+                    person = personMapper.toEntity(personDTO);
+                }
+            } else {
+                log.debug("Creating new person: {}", personDTO.name());
+                person = personMapper.toEntity(personDTO);
+            }
+            person.setSantasList(santasList);
+            santasList.getPersons().add(person);
+        });
+
         SantasList updatedSantasList = santasListRepository.save(santasList);
+        log.info("Saved updated SantasList. Final person count: {}", updatedSantasList.getPersons().size());
+
         return santasListMapper.toDto(updatedSantasList);
     }
 
@@ -128,13 +175,14 @@ public class SantasListService {
 
     public void deleteSantasList(UUID id) {
         UUID userId = UUID.fromString((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-        if (santasListRepository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("Santa's list not found with ID: " + id))
-                .getOwner()
-                .getUuid()
-                .equals(userId)) {
+        SantasList list = santasListRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Santa's list not found with ID: " + id));
+
+        // Check if user is NOT the owner
+        if (!list.getOwner().getUuid().equals(userId)) {
             throw new UnauthorizedAccessException("You are not authorized to delete this Santa's list");
         }
+
         santasListRepository.deleteById(id);
     }
 

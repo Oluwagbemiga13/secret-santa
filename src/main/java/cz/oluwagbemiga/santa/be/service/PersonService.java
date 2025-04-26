@@ -2,6 +2,7 @@ package cz.oluwagbemiga.santa.be.service;
 
 import cz.oluwagbemiga.santa.be.dto.PersonDTO;
 import cz.oluwagbemiga.santa.be.entity.Person;
+import cz.oluwagbemiga.santa.be.exception.ResourceNotFoundException;
 import cz.oluwagbemiga.santa.be.mapper.PersonMapper;
 import cz.oluwagbemiga.santa.be.repository.PersonRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,12 @@ public class PersonService {
 
         // Map the entities to DTOs
         return personMapper.toDto(persons);
+    }
+
+    public Person findById(UUID personId) {
+        // Fetch the person by ID
+        return personRepository.findById(personId)
+                .orElseThrow(() -> new ResourceNotFoundException("Person not found with ID: " + personId));
     }
 
     public PersonDTO createPerson(Person person) {

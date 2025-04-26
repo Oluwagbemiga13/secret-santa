@@ -105,6 +105,11 @@ function createListCard(list) {
         }
     });
 
+    const editButton = card.querySelector('.edit-button');
+    editButton.addEventListener('click', () => {
+        window.location.href = `/edit-list.html?id=${list.id}`;
+    });
+
     return card;
 }
 

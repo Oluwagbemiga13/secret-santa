@@ -149,5 +149,13 @@ class SantaListManager {
     }
 }
 
+class CreateList extends SantaListManager {
+    constructor() {
+        super();
+        this._initializeEventListeners(); // Now explicitly call it here
+    }
+    // ...rest of the code...
+}
+
 // Initialize the manager
-const santaListManager = new SantaListManager();
+const santaListManager = new CreateList();
