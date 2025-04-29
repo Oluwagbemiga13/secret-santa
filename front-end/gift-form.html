@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gift Form</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="gift-form.js" defer></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1>Select Your Gift</h1>
+        </div>
+        <div class="dashboard-content">
+            <div class="welcome-message">
+                <p>You have been invited to participate in Secret Santa by <span id="creator-name">NAME_OF_CREATOR</span>!</p>
+                <p>Please fill out the form below with information about a gift you would like to receive.</p>
+            </div>
+            <div class="gift-form">
+                <div class="input-group">
+                    <label for="gift-name">Gift Name:</label>
+                    <input type="text" id="gift-name" required>
+                </div>
+                <div class="input-group">
+                    <label for="gift-description">Description:</label>
+                    <textarea id="gift-description" rows="4" required></textarea>
+                </div>
+                <div class="buttons-container">
+                    <button id="submit-gift-button" class="action-button">SUBMIT</button>
+                    <button id="cancel-button" class="action-button">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
