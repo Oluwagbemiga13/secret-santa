@@ -7,4 +7,5 @@ public record GiftDTO(
         String name,
         String description,
         String affiliateLink
-) {}
+) {
+}

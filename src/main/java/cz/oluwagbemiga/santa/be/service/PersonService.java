@@ -1,6 +1,7 @@
 package cz.oluwagbemiga.santa.be.service;
 
 import cz.oluwagbemiga.santa.be.dto.PersonDTO;
+import cz.oluwagbemiga.santa.be.entity.Gift;
 import cz.oluwagbemiga.santa.be.entity.Person;
 import cz.oluwagbemiga.santa.be.exception.ResourceNotFoundException;
 import cz.oluwagbemiga.santa.be.mapper.PersonMapper;
@@ -35,6 +36,15 @@ public class PersonService {
     public PersonDTO createPerson(Person person) {
         Person savedPerson = personRepository.save(person);
         return personMapper.toDto(savedPerson);
+    }
+
+    public PersonDTO updatePersonGift(Person person, Gift gift) {
+        person.setDesiredGift(gift);
+        Person updatedPerson = personRepository.save(person);
+
+        // Return the updated entity as a DTO
+        return personMapper.toDto(updatedPerson);
+
     }
 
     public PersonDTO createPerson(PersonDTO personDTO) {

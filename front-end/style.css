@@ -139,6 +139,42 @@ button:active {
   overflow-y: auto; /* Enable vertical scrolling */
   padding-right: 10px; /* Add padding to avoid scrollbar overlap */
 }
+
+/* Send List specific card styles */
+.dashboard-content .cards-container {
+  width: 80%;
+  margin: 0 auto;
+}
+
+.dashboard-content .cards-container .card {
+  height: 50px;
+  min-height: 50px;
+  padding: 10px 20px;
+  align-items: center;
+  margin-bottom: 10px;
+  background-color: #ffffff;
+  border: 1px solid #006400;
+}
+
+.dashboard-content .cards-container .card .card-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.dashboard-content .cards-container .card .card-left h2 {
+  margin: 0;
+  font-size: 16px;
+  color: #006400;
+  min-width: 150px;
+}
+
+.dashboard-content .cards-container .card .card-left p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+}
+
 .card {
   display: flex;
   justify-content: space-between;
@@ -387,4 +423,64 @@ input.error {
   border: 1px solid #ced4da;
   border-radius: 4px;
   font-size: 14px;
+}
+
+/* Gift Form Specific Styles */
+.gift-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 90%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.gift-form .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.gift-form label {
+    color: #006400;
+    font-weight: bold;
+}
+
+.gift-form input,
+.gift-form textarea {
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.gift-form textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.gift-form input:focus,
+.gift-form textarea:focus {
+    border-color: #006400;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 100, 0, 0.2);
+}
+
+.welcome-message {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #006400;
+}
+
+.welcome-message p {
+    margin: 10px 0;
+    font-size: 16px;
+}
+
+.welcome-message #creator-name {
+    font-weight: bold;
 }

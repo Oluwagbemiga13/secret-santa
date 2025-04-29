@@ -71,13 +71,21 @@ function createListCard(list) {
             <h2>${statusDisplay}</h2>
         </div>
         <div class="card-right">
-            ${getSendButton(list.status)}
+            ${getSendButton(list.status, list.id)}
             <div class="card-actions">
                 <button class="edit-button">EDIT</button>
                 <button class="delete-button">DELETE</button>
             </div>
         </div>
     `;
+
+    // Add event listeners for buttons
+    if (list.status === 'CREATED') {
+        const sendButton = card.querySelector('.send-button');
+        sendButton.addEventListener('click', () => {
+            window.location.href = `/send-list.html?id=${list.id}`;
+        });
+    }
 
     // Add delete button event listener
     const deleteButton = card.querySelector('.delete-button');
@@ -113,10 +121,10 @@ function createListCard(list) {
     return card;
 }
 
-function getSendButton(status) {
+function getSendButton(status, listId) {
     // Only show send button for CREATED status
     if (status === 'CREATED') {
-        return '<button class="send-button">SEND</button>';
+        return `<button class="send-button" data-list-id="${listId}">SEND</button>`;
     }
     return '';
 }

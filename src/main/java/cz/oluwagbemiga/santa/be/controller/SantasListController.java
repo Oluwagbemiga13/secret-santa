@@ -3,6 +3,7 @@ package cz.oluwagbemiga.santa.be.controller;
 import cz.oluwagbemiga.santa.be.dto.PersonDTO;
 import cz.oluwagbemiga.santa.be.dto.SantasListDTO;
 import cz.oluwagbemiga.santa.be.dto.SantasListOverview;
+import cz.oluwagbemiga.santa.be.service.EmailService;
 import cz.oluwagbemiga.santa.be.service.SantasListService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -19,6 +20,7 @@ import java.util.UUID;
 public class SantasListController {
 
     private final SantasListService santasListService;
+    private final EmailService emailService;
 
     @Operation(summary = "Create a new Santa's list")
     @PostMapping
@@ -73,6 +75,13 @@ public class SantasListController {
     @GetMapping("/get-overviews")
     public List<SantasListOverview> getSantasListOverviews() {
         return santasListService.getListsOverviewsByUserId();
+    }
+
+    @Operation(summary = "Send emails to all persons in a Santa's list")
+    @PostMapping("/{id}/send-emails")
+    public ResponseEntity<Void> sendEmails(@PathVariable UUID id) {
+        emailService.sendEmails(id);
+        return ResponseEntity.ok().build();
     }
 
 }
