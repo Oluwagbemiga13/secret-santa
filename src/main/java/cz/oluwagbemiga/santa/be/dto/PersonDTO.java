@@ -6,7 +6,7 @@ public record PersonDTO(
         UUID id,
         String name,
         String email,
-        String desiredGift,
+        GiftDTO desiredGift,
         UUID recipientId
 ) {
 }

@@ -5,7 +5,7 @@ import cz.oluwagbemiga.santa.be.entity.Person;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {GiftMapper.class})
 public interface PersonMapper extends GenericMapper<Person, PersonDTO> {
 
     @Override

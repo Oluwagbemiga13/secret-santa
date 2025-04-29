@@ -48,7 +48,7 @@ public class SantasListService {
             Person person = Person.builder()
                     .name(personDTO.name())
                     .email(personDTO.email())
-                    .desiredGift(personDTO.desiredGift())
+                    .desiredGift(null)
                     .build();
             newList.addPerson(person); // This method handles both sides of the relationship
         });
@@ -67,7 +67,6 @@ public class SantasListService {
                 .orElseThrow(() -> new IllegalArgumentException("Person not found with ID: " + personId));
 
         person.setName(updatedPersonDTO.name());
-        person.setDesiredGift(updatedPersonDTO.desiredGift());
         person.setEmail(updatedPersonDTO.email());
 
         SantasList updatedSantasList = santasListRepository.save(santasList);
@@ -145,7 +144,6 @@ public class SantasListService {
                     log.info("Found existing person: {} (ID: {})", person.getName(), person.getId());
                     person.setName(personDTO.name());
                     person.setEmail(personDTO.email());
-                    person.setDesiredGift(personDTO.desiredGift());
                 } catch (ResourceNotFoundException e) {
                     log.warn("Person with ID {} not found, creating new", personDTO.id());
                     person = personMapper.toEntity(personDTO);

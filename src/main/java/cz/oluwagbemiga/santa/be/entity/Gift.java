@@ -13,7 +13,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Person {
+public class Gift {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -21,15 +21,10 @@ public class Person {
 
     private String name;
 
-    private String email;
+    private String description;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "desired_gift_id")
-    private Gift desiredGift;
+    private String affiliateLink;
 
-    @OneToOne(cascade = CascadeType.PERSIST)
-    private Person recipient;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    private SantasList santasList;
+    @OneToOne(mappedBy = "desiredGift")
+    private Person person;
 }
