@@ -3,6 +3,7 @@ package cz.oluwagbemiga.santa.be.service;
 import cz.oluwagbemiga.santa.be.dto.GiftDTO;
 import cz.oluwagbemiga.santa.be.dto.PersonDTO;
 import cz.oluwagbemiga.santa.be.dto.SantasListDTO;
+import cz.oluwagbemiga.santa.be.entity.ListStatus;
 import cz.oluwagbemiga.santa.be.entity.Person;
 import cz.oluwagbemiga.santa.be.mapper.GiftMapper;
 import cz.oluwagbemiga.santa.be.mapper.PersonMapper;
@@ -55,6 +56,7 @@ public class EmailService {
                 log.error("Failed to send email to: {} - {}", personDTO.email(), e.getMessage());
             }
         }
+        santasListService.updateStatus(santasListId, ListStatus.PEOPLE_SELECTING_GIFTS);
     }
 
     private void sendEmail(String to, String subject, String content) throws MessagingException {
