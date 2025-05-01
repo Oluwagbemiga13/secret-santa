@@ -50,6 +50,14 @@ function displaySantasLists(lists) {
         }
     });
 
+    if (lists.length === 0) {
+        const emptyMessage = document.createElement('div');
+        emptyMessage.className = 'empty-message';
+        emptyMessage.textContent = 'EMPTY';
+        dashboardContent.insertBefore(emptyMessage, dashboardContent.firstChild);
+        return;
+    }
+
     lists.forEach(list => {
         const card = createListCard(list);
         dashboardContent.appendChild(card);

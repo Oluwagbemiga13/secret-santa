@@ -2,6 +2,7 @@ package cz.oluwagbemiga.santa.be.controller;
 
 import cz.oluwagbemiga.santa.be.dto.AuthResponse;
 import cz.oluwagbemiga.santa.be.dto.UserDTO;
+import cz.oluwagbemiga.santa.be.dto.UserInfo;
 import cz.oluwagbemiga.santa.be.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
@@ -78,5 +79,11 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/info")
+    public ResponseEntity<UserInfo> getUserInfo() {
+        UserInfo userInfo = userService.getInfoById();
+        return ResponseEntity.ok(userInfo);
     }
 }

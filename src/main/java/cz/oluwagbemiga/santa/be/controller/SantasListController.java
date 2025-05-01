@@ -8,6 +8,7 @@ import cz.oluwagbemiga.santa.be.service.SantasListService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +18,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/santas-lists")
+@Slf4j
 public class SantasListController {
 
     private final SantasListService santasListService;
@@ -39,7 +41,9 @@ public class SantasListController {
     @Operation(summary = "Update a Santa's list")
     @PutMapping("/{id}")
     public ResponseEntity<SantasListDTO> updateSantasList(@PathVariable UUID id, @RequestBody @Valid SantasListDTO santasListDTO) {
+        log.debug("Updating Santa's list: {}", santasListDTO);
         SantasListDTO updatedList = santasListService.updateSantasList(id, santasListDTO);
+        log.debug("Updated Santa's list: {}", updatedList);
         return ResponseEntity.ok(updatedList);
     }
 
@@ -65,9 +69,9 @@ public class SantasListController {
     }
 
     @Operation(summary = "Delete a person from a Santa's list")
-    @DeleteMapping("/{id}/persons/{personId}")
-    public ResponseEntity<SantasListDTO> deletePersonFromSantasList(@PathVariable UUID id, @PathVariable Long personId) {
-        SantasListDTO updatedList = santasListService.deletePersonFromSantasList(id, personId);
+    @DeleteMapping("/{listId}/persons/{personId}")
+    public ResponseEntity<SantasListDTO> deletePersonFromSantasList(@PathVariable UUID listId, @PathVariable UUID personId) {
+        SantasListDTO updatedList = santasListService.deletePersonFromSantasList(listId, personId);
         return ResponseEntity.ok(updatedList);
     }
 

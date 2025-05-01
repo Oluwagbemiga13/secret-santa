@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -73,19 +74,26 @@ public class SantasListService {
         return santasListMapper.toDto(updatedSantasList);
     }
 
-    public SantasListDTO deletePersonFromSantasList(UUID santasListId, Long personId) {
+    public SantasListDTO deletePersonFromSantasList(UUID santasListId, UUID personId) {
         SantasList santasList = santasListRepository.findById(santasListId)
-                .orElseThrow(() -> new IllegalArgumentException("Santa's list not found with ID: " + santasListId));
+                .orElseThrow(() -> new ResourceNotFoundException("Santa's list not found with ID: " + santasListId));
 
         Person person = santasList.getPersons().stream()
                 .filter(p -> p.getId().equals(personId))
                 .findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException("Person not found with ID: " + personId));
 
+        // Remove bidirectional relationship
+        person.setSantasList(null);
         santasList.getPersons().remove(person);
 
-        SantasList updatedSantasList = santasListRepository.save(santasList);
-        return santasListMapper.toDto(updatedSantasList);
+        // Save the updated list
+        santasList = santasListRepository.save(santasList);
+
+        // Delete the person
+        personService.deletePerson(personId);
+
+        return santasListMapper.toDto(santasList);
     }
 
     public SantasListDTO addPersonToSantasList(UUID santasListId, PersonDTO newPersonDTO) {
@@ -115,45 +123,48 @@ public class SantasListService {
                 .orElseThrow(() -> new ResourceNotFoundException("Santa's list not found with ID: " + id));
         log.debug("Found existing SantasList: {}, with {} persons", santasList.getName(), santasList.getPersons().size());
 
+        // Update basic list properties
         santasList.setName(santasListDTO.name());
         santasList.setDueDate(santasListDTO.dueDate());
 
-        log.info("Current persons in list: {}",
-                santasList.getPersons().stream()
-                        .map(p -> String.format("ID: %s, Name: %s", p.getId(), p.getName()))
-                        .collect(Collectors.joining(", "))
-        );
+        // Get IDs of persons in the DTO
+        List<UUID> updatedPersonIds = santasListDTO.persons().stream()
+                .map(PersonDTO::id)
+                .filter(Objects::nonNull)
+                .toList();
 
-        log.info("Incoming persons in DTO: {}",
-                santasListDTO.persons().stream()
-                        .map(p -> String.format("ID: %s, Name: %s", p.id(), p.name()))
-                        .collect(Collectors.joining(", "))
-        );
+        // Find and remove persons that are no longer in the list
+        List<Person> personsToRemove = santasList.getPersons().stream()
+                .filter(person -> !updatedPersonIds.contains(person.getId()))
+                .toList();
 
-        // Clear the persons collection and rebuild it
-        santasList.getPersons().clear();
-        log.debug("Cleared existing persons collection");
+        // Remove the persons and delete them from database
+        personsToRemove.forEach(person -> {
+            santasList.getPersons().remove(person);
+            personService.deletePerson(person.getId());
+            log.debug("Removed and deleted person: {} (ID: {})", person.getName(), person.getId());
+        });
 
-        // Update/create persons
+        // Update existing persons and add new ones
         santasListDTO.persons().forEach(personDTO -> {
-            Person person;
             if (personDTO.id() != null) {
-                log.debug("Attempting to update existing person with ID: {}", personDTO.id());
                 try {
-                    person = personService.findById(personDTO.id());
-                    log.info("Found existing person: {} (ID: {})", person.getName(), person.getId());
-                    person.setName(personDTO.name());
-                    person.setEmail(personDTO.email());
+                    Person existingPerson = personService.findById(personDTO.id());
+                    existingPerson.setName(personDTO.name());
+                    existingPerson.setEmail(personDTO.email());
+                    log.debug("Updated existing person: {} (ID: {})", existingPerson.getName(), existingPerson.getId());
                 } catch (ResourceNotFoundException e) {
-                    log.warn("Person with ID {} not found, creating new", personDTO.id());
-                    person = personMapper.toEntity(personDTO);
+                    Person newPerson = personMapper.toEntity(personDTO);
+                    newPerson.setSantasList(santasList);
+                    santasList.getPersons().add(newPerson);
+                    log.debug("Added new person with existing ID: {} (ID: {})", newPerson.getName(), personDTO.id());
                 }
             } else {
-                log.debug("Creating new person: {}", personDTO.name());
-                person = personMapper.toEntity(personDTO);
+                Person newPerson = personMapper.toEntity(personDTO);
+                newPerson.setSantasList(santasList);
+                santasList.getPersons().add(newPerson);
+                log.debug("Added new person: {}", newPerson.getName());
             }
-            person.setSantasList(santasList);
-            santasList.getPersons().add(person);
         });
 
         SantasList updatedSantasList = santasListRepository.save(santasList);

@@ -47,7 +47,7 @@ public class EmailService {
         for (PersonDTO personDTO : santasList.persons()) {
             GiftDTO giftDTO = giftService.createGift();
             Person person = personMapper.toEntity(personDTO);
-            personService.updatePersonGift(person, giftMapper.toEntity(giftDTO));
+            personService.assignPersonGift(person, giftMapper.toEntity(giftDTO));
             try {
                 sendEmail(personDTO.email(), "Secret Santa List: " + santasList.name(),
                         buildEmailContent(personDTO, santasList, giftDTO.id()));

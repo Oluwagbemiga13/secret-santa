@@ -2,6 +2,7 @@ package cz.oluwagbemiga.santa.be.service;
 
 import cz.oluwagbemiga.santa.be.dto.GiftDTO;
 import cz.oluwagbemiga.santa.be.entity.Gift;
+import cz.oluwagbemiga.santa.be.entity.Person;
 import cz.oluwagbemiga.santa.be.mapper.GiftMapper;
 import cz.oluwagbemiga.santa.be.repository.GiftRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ public class GiftService {
 
     private final GiftRepository giftRepository;
     private final GiftMapper giftMapper;
+    private final PersonService personService;
 
     public List<GiftDTO> getAllGifts() {
         List<Gift> gifts = giftRepository.findAll();
@@ -39,8 +41,12 @@ public class GiftService {
                 .orElseThrow(() -> new IllegalArgumentException("Gift not found with ID: " + id));
         existingGift.setName(giftDTO.name());
         existingGift.setDescription(giftDTO.description());
-        existingGift.setAffiliateLink(giftDTO.affiliateLink());
         Gift updatedGift = giftRepository.save(existingGift);
+
+        Person person = personService.findByGiftId(id);
+        person.setHasSelectedGift(true);
+        personService.updatePerson(person);
+
         return giftMapper.toDto(updatedGift);
     }
 

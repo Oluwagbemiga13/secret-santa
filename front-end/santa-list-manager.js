@@ -1,6 +1,7 @@
 class SantaListManager {
     constructor() {
         this.personCount = 3;
+        this._initializeEventListeners();
         this.loadInitialCards();
     }
 
@@ -9,11 +10,37 @@ class SantaListManager {
         document.getElementById('save-list-button').addEventListener('click', () => this.saveList());
     }
 
-    loadInitialCards() {
+    async loadInitialCards() {
         const cardsContainer = document.querySelector('.cards-container');
         cardsContainer.innerHTML = ''; // Clear existing cards
-        for (let i = 1; i <= 3; i++) {
-            cardsContainer.appendChild(this.createPersonCard(i));
+        
+        try {
+            const response = await fetch('http://localhost:8080/api/users/info', {
+                headers: {
+                    'Authorization': `Bearer ${this.getAuthToken()}`
+                }
+            });
+
+            if (response.ok) {
+                const userInfo = await response.json();
+                // Create first card with user info
+                const firstCard = this.createPersonCard(1);
+                cardsContainer.appendChild(firstCard);
+                
+                // Fill the first card with user info
+                firstCard.querySelector('input[id^="name"]').value = userInfo.username;
+                firstCard.querySelector('input[id^="email"]').value = userInfo.email;
+                
+                // Add remaining empty cards
+                for (let i = 2; i <= 3; i++) {
+                    cardsContainer.appendChild(this.createPersonCard(i));
+                }
+            } else {
+                this.createInitialCardsWithMessage();
+            }
+        } catch (error) {
+            console.error('Error fetching user info:', error);
+            this.createInitialCardsWithMessage();
         }
     }
 

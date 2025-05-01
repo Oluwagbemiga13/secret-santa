@@ -7,7 +7,6 @@ import java.util.UUID;
 
 public record UserDTO(
 
-        UUID uuid,
 
         @NotBlank(message = "Username is required")
         String username,

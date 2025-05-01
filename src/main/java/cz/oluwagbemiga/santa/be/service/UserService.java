@@ -2,7 +2,9 @@ package cz.oluwagbemiga.santa.be.service;
 
 import cz.oluwagbemiga.santa.be.dto.AuthResponse;
 import cz.oluwagbemiga.santa.be.dto.UserDTO;
+import cz.oluwagbemiga.santa.be.dto.UserInfo;
 import cz.oluwagbemiga.santa.be.entity.User;
+import cz.oluwagbemiga.santa.be.exception.ResourceNotFoundException;
 import cz.oluwagbemiga.santa.be.exception.UserRegistrationException;
 import cz.oluwagbemiga.santa.be.mapper.UserMapper;
 import cz.oluwagbemiga.santa.be.repository.UserRepository;
@@ -13,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -71,6 +74,13 @@ public class UserService {
         UUID userUuid = UUID.fromString(userUuidStr);
         return userRepository.findById(userUuid)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with UUID: " + userUuidStr));
+    }
+
+    public UserInfo getInfoById() {
+        UUID uuid = UUID.fromString((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        User user = userRepository.findByUuid(uuid).orElseThrow(() -> new ResourceNotFoundException("User not found with UUID: " + uuid));
+        return new UserInfo(uuid, user.getUsername(), user.getEmail());
+
     }
 
 }

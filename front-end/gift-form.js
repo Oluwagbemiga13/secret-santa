@@ -1,7 +1,6 @@
 class GiftForm {
     constructor() {
         this.giftId = this.getIdFromUrl();
-        this.loadCreatorName();
         this.initializeEventListeners();
     }
 
@@ -14,25 +13,6 @@ class GiftForm {
         return localStorage.getItem('authToken');
     }
 
-    async loadCreatorName() {
-        try {
-            const response = await fetch(`http://localhost:8080/api/gifts/${this.giftId}/creator`, {
-                headers: {
-                    'Authorization': `Bearer ${this.getAuthToken()}`
-                }
-            });
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            document.getElementById('creator-name').textContent = data.creatorName;
-        } catch (error) {
-            console.error('Error loading creator name:', error);
-            document.getElementById('creator-name').textContent = 'your Secret Santa organizer';
-        }
-    }
 
     validateForm() {
         const name = document.getElementById('gift-name').value.trim();
@@ -54,8 +34,9 @@ class GiftForm {
         };
 
         try {
+            // Changed URL to match backend's expected path variable name
             const response = await fetch(`http://localhost:8080/api/gifts/${this.giftId}`, {
-                method: 'POST',
+                method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${this.getAuthToken()}`,
                     'Content-Type': 'application/json'
@@ -67,11 +48,11 @@ class GiftForm {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            alert('Gift submitted successfully!');
+            alert('Gift updated successfully!');
             window.location.href = 'dashboard.html';
         } catch (error) {
-            console.error('Error submitting gift:', error);
-            alert('Failed to submit gift. Please try again.');
+            console.error('Error updating gift:', error);
+            alert('Failed to update gift. Please try again.');
         }
     }
 

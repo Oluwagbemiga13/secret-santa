@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +21,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/api/persons")
 @Tag(name = "Person Management", description = "APIs for managing persons in Santa's list")
+@Slf4j
 public class PersonController {
 
     private final PersonService personService;
@@ -42,6 +44,7 @@ public class PersonController {
     )
     @PostMapping
     public ResponseEntity<PersonDTO> createPerson(@RequestBody @Valid PersonDTO personDTO) {
+        log.debug("Creating person: {}", personDTO);
         PersonDTO createdPerson = personService.createPerson(personDTO);
         return ResponseEntity.ok(createdPerson);
     }
@@ -67,6 +70,7 @@ public class PersonController {
     )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePerson(@PathVariable UUID id) {
+        log.debug("Deleting person with ID: {}", id);
         personService.deletePerson(id);
         return ResponseEntity.ok().build();
     }

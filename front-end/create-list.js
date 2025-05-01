@@ -10,10 +10,56 @@ class SantaListManager {
         document.getElementById('save-list-button').addEventListener('click', () => this.saveList());
     }
 
-    loadInitialCards() {
+    async loadInitialCards() {
         const cardsContainer = document.querySelector('.cards-container');
         cardsContainer.innerHTML = ''; // Clear existing cards
-        for (let i = 1; i <= 3; i++) {
+        
+        try {
+            const response = await fetch('http://localhost:8080/api/users/info', {
+                headers: {
+                    'Authorization': `Bearer ${this.getAuthToken()}`
+                }
+            });
+
+            if (response.ok) {
+                const userInfo = await response.json();
+                // Create first card with user info
+                const firstCard = this.createPersonCard(1);
+                cardsContainer.appendChild(firstCard);
+                
+                // Fill the first card with user info
+                firstCard.querySelector('input[id^="name"]').value = userInfo.username;
+                firstCard.querySelector('input[id^="email"]').value = userInfo.email;
+                
+                // Add remaining empty cards
+                for (let i = 2; i <= 3; i++) {
+                    cardsContainer.appendChild(this.createPersonCard(i));
+                }
+            } else {
+                this.createInitialCardsWithMessage();
+            }
+        } catch (error) {
+            console.error('Error fetching user info:', error);
+            this.createInitialCardsWithMessage();
+        }
+    }
+
+    createInitialCardsWithMessage() {
+        const cardsContainer = document.querySelector('.cards-container');
+        const firstCard = this.createPersonCard(1);
+        
+        // Add a message above the first card's inputs
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('info-message');
+        messageDiv.style.color = '#666';
+        messageDiv.style.marginBottom = '10px';
+        messageDiv.textContent = 'Please enter your information';
+        
+        firstCard.insertBefore(messageDiv, firstCard.firstChild);
+        cardsContainer.appendChild(firstCard);
+        
+        // Add remaining empty cards
+        for (let i = 2; i <= 3; i++) {
             cardsContainer.appendChild(this.createPersonCard(i));
         }
     }
@@ -21,8 +67,12 @@ class SantaListManager {
     createPersonCard(index) {
         const newPerson = document.createElement('div');
         newPerson.classList.add('person-card');
+        
+        // Only add delete button if it's not the first card
+        const deleteButton = index === 1 ? '' : '<button class="delete-button" onclick="santaListManager.deletePerson(this)">×</button>';
+        
         newPerson.innerHTML = `                
-            <button class="delete-button" onclick="santaListManager.deletePerson(this)">×</button>
+            ${deleteButton}
             <div class="inputs-container">
                 <div class="input-group">
                     <label for="name-${index}">Name:</label>
@@ -152,9 +202,8 @@ class SantaListManager {
 class CreateList extends SantaListManager {
     constructor() {
         super();
-        this._initializeEventListeners(); // Now explicitly call it here
+        this._initializeEventListeners();
     }
-    // ...rest of the code...
 }
 
 // Initialize the manager

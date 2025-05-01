@@ -23,6 +23,9 @@ public class Person {
 
     private String email;
 
+    @Builder.Default
+    private boolean hasSelectedGift = false;
+
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "desired_gift_id")
     private Gift desiredGift;

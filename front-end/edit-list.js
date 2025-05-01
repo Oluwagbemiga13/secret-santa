@@ -3,8 +3,8 @@ class SantaListEditor extends SantaListManager {
         super();
         this.listId = this.getListIdFromUrl();
         this.loadExistingList();
-        // Override the parent's event listeners
-        this.initializeEventListeners();
+        // Remove this line since super() already initialized the listeners
+        // this.initializeEventListeners();
     }
 
     getListIdFromUrl() {
@@ -32,6 +32,16 @@ class SantaListEditor extends SantaListManager {
             console.error('Error loading Santa\'s list:', error);
             alert('Failed to load Santa\'s list. Redirecting to dashboard...');
             window.location.href = 'dashboard.html';
+        }
+    }
+
+    async loadInitialCards() {
+        const cardsContainer = document.querySelector('.cards-container');
+        cardsContainer.innerHTML = ''; // Clear existing cards
+        
+        // Just create 3 empty cards without user info
+        for (let i = 1; i <= 3; i++) {
+            cardsContainer.appendChild(this.createPersonCard(i));
         }
     }
 
