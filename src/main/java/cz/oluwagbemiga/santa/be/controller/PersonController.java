@@ -3,10 +3,12 @@ package cz.oluwagbemiga.santa.be.controller;
 import cz.oluwagbemiga.santa.be.dto.PersonDTO;
 import cz.oluwagbemiga.santa.be.service.PersonService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,12 @@ import java.util.UUID;
 @RequestMapping("/api/persons")
 @Tag(name = "Person Management", description = "APIs for managing persons in Santa's list")
 @Slf4j
+@SecurityScheme(
+        name = "bearerAuth",
+        type = SecuritySchemeType.HTTP,
+        scheme = "bearer",
+        bearerFormat = "JWT"
+)
 public class PersonController {
 
     private final PersonService personService;
@@ -75,6 +83,10 @@ public class PersonController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(
+            summary = "Get persons by Santa's list ID",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
     @GetMapping("/persons/santas-list/{santasListId}")
     public List<PersonDTO> getPersonBySantasListId(@PathVariable UUID santasListId) {
         return personService.getBySantasListId(santasListId);

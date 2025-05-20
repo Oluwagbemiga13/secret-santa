@@ -1,6 +1,7 @@
 package cz.oluwagbemiga.santa.be.service;
 
 import cz.oluwagbemiga.santa.be.dto.PersonDTO;
+import cz.oluwagbemiga.santa.be.dto.PersonOverview;
 import cz.oluwagbemiga.santa.be.entity.Gift;
 import cz.oluwagbemiga.santa.be.entity.Person;
 import cz.oluwagbemiga.santa.be.exception.ResourceNotFoundException;
@@ -20,10 +21,7 @@ public class PersonService {
     private final PersonMapper personMapper;
 
     public List<PersonDTO> getBySantasListId(UUID santasListId) {
-        // Fetch all persons associated with the given Santa's list ID
         List<Person> persons = personRepository.findBySantasListId(santasListId);
-
-        // Map the entities to DTOs
         return personMapper.toDto(persons);
     }
 
@@ -35,12 +33,16 @@ public class PersonService {
 
 
 
+
+
     public PersonDTO createPerson(Person person) {
         Person savedPerson = personRepository.save(person);
         return personMapper.toDto(savedPerson);
     }
 
-    public void assignPersonGift(Person person, Gift gift) {
+    public void assignPersonGift(UUID personId, Gift gift) {
+        Person person = personRepository.findById(personId)
+                .orElseThrow(() -> new ResourceNotFoundException("Person not found with ID: " + personId));
         person.setDesiredGift(gift);
         Person updatedPerson = personRepository.save(person);
         personMapper.toDto(updatedPerson);
@@ -55,6 +57,8 @@ public class PersonService {
         return personRepository.findByDesiredGiftId(giftId)
                 .orElseThrow(() -> new ResourceNotFoundException("Person not found with Gift ID: " + giftId));
     }
+
+
 
     public PersonDTO createPerson(PersonDTO personDTO) {
         Person person = personMapper.toEntity(personDTO);

@@ -1,8 +1,6 @@
 package cz.oluwagbemiga.santa.be.service;
 
-import cz.oluwagbemiga.santa.be.dto.PersonDTO;
-import cz.oluwagbemiga.santa.be.dto.SantasListDTO;
-import cz.oluwagbemiga.santa.be.dto.SantasListOverview;
+import cz.oluwagbemiga.santa.be.dto.*;
 import cz.oluwagbemiga.santa.be.entity.ListStatus;
 import cz.oluwagbemiga.santa.be.entity.Person;
 import cz.oluwagbemiga.santa.be.entity.SantasList;
@@ -212,5 +210,24 @@ public class SantasListService {
 
         santasList.setStatus(listStatus);
         return santasListMapper.toDto(santasListRepository.save(santasList));
+    }
+
+    public ListDetails getListDetails(UUID id) {
+        SantasList santasList = santasListRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Santa's list not found with ID: " + id));
+
+        ListDetails listDetails = new ListDetails(
+                santasList.getId(),
+                santasList.getName(),
+                santasList.getCreationDate(),
+                santasList.getDueDate(),
+                santasList.isLocked(),
+                personService.getBySantasListId(id).stream()
+                        .map(PersonOverview::new)
+                        .collect(Collectors.toList()),
+                santasList.getStatus().name()
+        );
+        log.debug("ListDetails created: {}", listDetails);
+        return listDetails;
     }
 }

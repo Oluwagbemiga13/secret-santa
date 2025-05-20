@@ -1,11 +1,14 @@
 package cz.oluwagbemiga.santa.be.controller;
 
+import cz.oluwagbemiga.santa.be.dto.ListDetails;
 import cz.oluwagbemiga.santa.be.dto.PersonDTO;
 import cz.oluwagbemiga.santa.be.dto.SantasListDTO;
 import cz.oluwagbemiga.santa.be.dto.SantasListOverview;
 import cz.oluwagbemiga.santa.be.service.EmailService;
 import cz.oluwagbemiga.santa.be.service.SantasListService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +22,12 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/api/santas-lists")
 @Slf4j
+@SecurityScheme(
+        name = "bearerAuth",
+        type = SecuritySchemeType.HTTP,
+        scheme = "bearer",
+        bearerFormat = "JWT"
+)
 public class SantasListController {
 
     private final SantasListService santasListService;
@@ -86,6 +95,13 @@ public class SantasListController {
     public ResponseEntity<Void> sendEmails(@PathVariable UUID id) {
         emailService.sendEmails(id);
         return ResponseEntity.ok().build();
+    }
+    @Operation(summary = "Get details of a Santa's list")
+    @GetMapping("/{id}/details")
+    public ListDetails getListDetails(@PathVariable UUID id) {
+        ListDetails listDetails = santasListService.getListDetails(id);
+        log.info("List details : {}", listDetails);
+        return listDetails;
     }
 
 }

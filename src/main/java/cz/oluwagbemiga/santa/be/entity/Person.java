@@ -34,5 +34,6 @@ public class Person {
     private Person recipient;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "santas_list_id", nullable = false) // Ensure proper join column mapping
     private SantasList santasList;
 }

@@ -79,54 +79,72 @@ function createListCard(list) {
             <h2>${statusDisplay}</h2>
         </div>
         <div class="card-right">
-            ${getSendButton(list.status, list.id)}
-            <div class="card-actions">
-                <button class="edit-button">EDIT</button>
-                <button class="delete-button">DELETE</button>
-            </div>
+            ${getCardButtons(list)}
         </div>
     `;
 
     // Add event listeners for buttons
     if (list.status === 'CREATED') {
         const sendButton = card.querySelector('.send-button');
-        sendButton.addEventListener('click', () => {
+        sendButton?.addEventListener('click', () => {
             window.location.href = `/send-list.html?id=${list.id}`;
+        });
+
+        const deleteButton = card.querySelector('.delete-button');
+        deleteButton?.addEventListener('click', async () => {
+            if (confirm('Are you sure you want to delete this list?')) {
+                try {
+                    const authToken = localStorage.getItem("authToken");
+                    const response = await fetch(`http://localhost:8080/api/santas-lists/${list.id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${authToken}`
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    // Remove the card from the UI
+                    card.remove();
+                } catch (error) {
+                    console.error('Error deleting list:', error);
+                    alert('Failed to delete the list. Please try again later.');
+                }
+            }
+        });
+
+        const editButton = card.querySelector('.edit-button');
+        editButton?.addEventListener('click', () => {
+            window.location.href = `/edit-list.html?id=${list.id}`;
+        });
+    } else {
+        const viewButton = card.querySelector('.view-button');
+        viewButton?.addEventListener('click', () => {
+            window.location.href = `/view-list.html?id=${list.id}`;
         });
     }
 
-    // Add delete button event listener
-    const deleteButton = card.querySelector('.delete-button');
-    deleteButton.addEventListener('click', async () => {
-        if (confirm('Are you sure you want to delete this list?')) {
-            try {
-                const authToken = localStorage.getItem("authToken");
-                const response = await fetch(`http://localhost:8080/api/santas-lists/${list.id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${authToken}`
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                // Remove the card from the UI
-                card.remove();
-            } catch (error) {
-                console.error('Error deleting list:', error);
-                alert('Failed to delete the list. Please try again later.');
-            }
-        }
-    });
-
-    const editButton = card.querySelector('.edit-button');
-    editButton.addEventListener('click', () => {
-        window.location.href = `/edit-list.html?id=${list.id}`;
-    });
-
     return card;
+}
+
+function getCardButtons(list) {
+    if (list.status === 'CREATED') {
+        return `
+            ${getSendButton(list.status, list.id)}
+            <div class="card-actions">
+                <button class="edit-button">EDIT</button>
+                <button class="delete-button">DELETE</button>
+            </div>
+        `;
+    } else {
+        return `
+            <div class="card-actions">
+                <button class="view-button">VIEW</button>
+            </div>
+        `;
+    }
 }
 
 function getSendButton(status, listId) {
