@@ -27,4 +27,5 @@ public class Gift {
 
     @OneToOne(mappedBy = "desiredGift")
     private Person person;
+
 }

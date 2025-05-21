@@ -230,4 +230,8 @@ public class SantasListService {
         log.debug("ListDetails created: {}", listDetails);
         return listDetails;
     }
+
+    public List<SantasList> getAllByStatus(ListStatus listStatus){
+        return  santasListRepository.findByStatus(listStatus);
+    }
 }

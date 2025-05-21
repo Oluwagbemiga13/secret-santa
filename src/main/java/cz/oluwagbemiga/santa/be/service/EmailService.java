@@ -40,7 +40,14 @@ public class EmailService {
     @Value("${spring.mail.username}")
     private String mailUsername;
 
-    public void sendEmails(UUID santasListId) {
+    @Value("${secret-santa.email-service.enabled}")
+    private boolean emailServiceEnabled;
+
+    /**
+     * Sends a request to all persons in the Santa's list to select their gifts.
+     * @param santasListId
+     */
+    public void sendRequest(UUID santasListId) {
 
         log.info(SecurityContextHolder.getContext().getAuthentication().toString());
         SantasListDTO santasList = santasListService.getSantasListById(santasListId);
@@ -50,7 +57,7 @@ public class EmailService {
             personService.assignPersonGift(personDTO.id(), giftMapper.toEntity(giftDTO));
             try {
                 sendEmail(personDTO.email(), "Secret Santa List: " + santasList.name(),
-                        buildEmailContent(personDTO, santasList, giftDTO.id()));
+                        buildRequestContent(personDTO, santasList, giftDTO.id()));
             } catch (MessagingException e) {
                 log.error("Failed to send email to: {} - {}", personDTO.email(), e.getMessage());
             }
@@ -58,7 +65,57 @@ public class EmailService {
         santasListService.updateStatus(santasListId, ListStatus.PEOPLE_SELECTING_GIFTS);
     }
 
+    /**
+     * Builds email content for requesting gift selection.
+     * @param person
+     * @param santasList
+     * @param giftId
+     * @return
+     */
+    private String buildRequestContent(PersonDTO person, SantasListDTO santasList, UUID giftId) {
+        String giftFormFullUrl = baseUrl + giftFormUrl + giftId;
+
+        return "<h1>Hello " + person.name() + "!</h1>" +
+                "<p>You are part of the Secret Santa list: <strong>" + santasList.name() + "</strong>.</p>" +
+                "<p>Due Date: " + santasList.name() + "</p>" +
+                "<p>Please fill in the gift you want to receive at this link: " +
+                "<a href='" + giftFormFullUrl + "'>Gift Form</a></p>" +
+                "<p>Happy Holidays!</p>";
+    }
+
+    public void sendResults(UUID santasListId) {
+        SantasListDTO santasList = santasListService.getSantasListById(santasListId);
+
+        for (PersonDTO personDTO : santasList.persons()) {
+            try {
+                sendEmail(personDTO.email(), "Secret Santa List: " + santasList.name(),
+                        buildResultContent(personDTO, santasList));
+                log.debug("Result sent to: {}", personDTO.email());
+            } catch (MessagingException e) {
+                log.error("Failed to send result to: {} - {}", personDTO.email(), e.getMessage());
+            }
+        }
+    }
+
+    public String buildResultContent(PersonDTO personDTO, SantasListDTO santasList) {
+        Person person = personService.findById(personDTO.id());
+        StringBuilder resultContent = new StringBuilder();
+        Person recipient = person.getRecipient();
+        resultContent.append("<h1>Hello ").append(person.getName()).append("!</h1>")
+                .append("<p>You are part of the Secret Santa list: <strong>").append(santasList.name()).append("</strong>.</p>")
+                .append("<p>Due Date: ").append(santasList.name()).append("</p>")
+                .append("<p>Your assigned gift is: <strong>").append(recipient.getDesiredGift().getName()).append("</strong></p>")
+                .append("<p>And you are giving it to: <strong>").append(recipient.getName()).append("</strong>")
+                .append("<p> Details: ").append(recipient.getDesiredGift().getDescription())
+                .append("<p>Happy Holidays!</p>");
+        return resultContent.toString();
+    }
+
     private void sendEmail(String to, String subject, String content) throws MessagingException {
+        if(!emailServiceEnabled) {
+            log.warn("Email service is disabled. Email not sent to: {}", to);
+            return;
+        }
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
@@ -71,14 +128,4 @@ public class EmailService {
     }
 
 
-    private String buildEmailContent(PersonDTO person, SantasListDTO santasList, UUID giftId) {
-        String giftFormFullUrl = baseUrl + giftFormUrl + giftId;
-
-        return "<h1>Hello " + person.name() + "!</h1>" +
-                "<p>You are part of the Secret Santa list: <strong>" + santasList.name() + "</strong>.</p>" +
-                "<p>Due Date: " + santasList.name() + "</p>" +
-                "<p>Please fill in the gift you want to receive at this link: " +
-                "<a href='" + giftFormFullUrl + "'>Gift Form</a></p>" +
-                "<p>Happy Holidays!</p>";
-    }
 }

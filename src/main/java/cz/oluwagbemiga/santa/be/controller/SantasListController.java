@@ -93,7 +93,7 @@ public class SantasListController {
     @Operation(summary = "Send emails to all persons in a Santa's list")
     @PostMapping("/{id}/send-emails")
     public ResponseEntity<Void> sendEmails(@PathVariable UUID id) {
-        emailService.sendEmails(id);
+        emailService.sendRequest(id);
         return ResponseEntity.ok().build();
     }
     @Operation(summary = "Get details of a Santa's list")

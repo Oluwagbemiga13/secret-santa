@@ -32,9 +32,6 @@ public class PersonService {
     }
 
 
-
-
-
     public PersonDTO createPerson(Person person) {
         Person savedPerson = personRepository.save(person);
         return personMapper.toDto(savedPerson);

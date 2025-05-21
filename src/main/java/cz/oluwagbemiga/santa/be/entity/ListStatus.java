@@ -3,7 +3,8 @@ package cz.oluwagbemiga.santa.be.entity;
 public enum ListStatus {
     CREATED("List needs to be sent to participants"),
     PEOPLE_SELECTING_GIFTS("People are selecting their gifts."),
-    SENT_TO_SANTA("Everyone recieved instructions what gift they are giving."),;
+    GIFTS_SELECTED("People selected gifts, list shuffled."),
+    SENT_TO_SANTA("Everyone recieved instructions what gift they are giving.");
 
     private final String message;
 
