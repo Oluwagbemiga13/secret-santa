@@ -49,6 +49,7 @@ class SantaListEditor extends SantaListManager {
         // Set list details
         document.getElementById('list-name').value = list.name;
         document.getElementById('due-date').value = list.dueDate?.split('T')[0]; // Handle ISO date format
+        document.getElementById('budgetPerGift').value = list.budgetPerGift || '';
     
         // Clear and populate person cards
         const cardsContainer = document.querySelector('.cards-container');
@@ -85,10 +86,15 @@ class SantaListEditor extends SantaListManager {
     collectFormData() {
         const listName = document.getElementById('list-name').value.trim();
         const dueDate = document.getElementById('due-date').value;
+        const budgetPerGift = Number(document.getElementById('budgetPerGift').value)
 
         if (!listName || !dueDate) {
             alert('Please fill in all required fields.');
             return null;
+        }
+        
+        if(budgetPerGift< 1 || budgetPerGift > 32767){
+            throw new Error ("budgetPerGift must be between 1 and 32 767.")
         }
 
         const personCards = document.querySelectorAll('.person-card');
@@ -102,6 +108,7 @@ class SantaListEditor extends SantaListManager {
             id: this.listId,
             name: listName,
             dueDate: dueDate,
+            budgetPerGift: budgetPerGift,
             persons: persons
         };
     }

@@ -31,6 +31,8 @@ public class SantasList {
 
     private boolean isLocked;
 
+    private int budgetPerGift;
+
     @Builder.Default
     private ListStatus status = ListStatus.CREATED;
 

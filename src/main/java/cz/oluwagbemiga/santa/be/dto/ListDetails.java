@@ -13,19 +13,21 @@ public record ListDetails(
         LocalDate dueDate,
         boolean isLocked,
         List<PersonOverview> persons,
-        String status) {
-public ListDetails(SantasList santasList){
-    this(
-            santasList.getId(),
-            santasList.getName(),
-            santasList.getCreationDate(),
-            santasList.getDueDate(),
-            santasList.isLocked(),
-            santasList.getPersons().stream()
-                    .map(PersonOverview::new)
-                    .toList(),
-            santasList.getStatus().name()
-    );
-}
+        String status,
+        int budgetPerGift) {
+    public ListDetails(SantasList santasList) {
+        this(
+                santasList.getId(),
+                santasList.getName(),
+                santasList.getCreationDate(),
+                santasList.getDueDate(),
+                santasList.isLocked(),
+                santasList.getPersons().stream()
+                        .map(PersonOverview::new)
+                        .toList(),
+                santasList.getStatus().name(),
+                santasList.getBudgetPerGift()
+        );
+    }
 
 }

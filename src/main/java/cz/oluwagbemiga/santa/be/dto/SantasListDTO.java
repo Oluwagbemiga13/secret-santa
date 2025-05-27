@@ -12,6 +12,7 @@ public record SantasListDTO(
         boolean isLocked,
         List<PersonDTO> persons,
         String status,
-        UUID ownerId
+        UUID ownerId,
+        int budgetPerGift
 ) {
 }

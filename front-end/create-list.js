@@ -130,15 +130,17 @@ class SantaListManager {
     collectFormData() {
         const listName = document.getElementById('list-name').value.trim();
         const dueDate = document.getElementById('due-date').value;
+        const budgetPerGift = Number(document.getElementById('budgetPerGift').value)
 
-        if (!listName || !dueDate) {
-            alert('Please fill in both list name and due date.');
-            return null;
+        if (!listName || !dueDate || !budgetPerGift) {
+            throw new Error('Please fill all fields.');
         }
 
         if (!this.isValidDate(dueDate)) {
-            alert('Please enter a valid date.');
-            return null;
+            throw new Error('Please enter a valid date.');
+        }
+        if(budgetPerGift< 1 || budgetPerGift > 32767){
+            throw new Error ("budgetPerGift must be between 1 and 32 767.")
         }
 
         const persons = Array.from(document.querySelectorAll('.person-card')).map(card => ({
@@ -150,6 +152,7 @@ class SantaListManager {
         return {
             name: listName,
             dueDate: dueDate,
+            budgetPerGift: budgetPerGift,
             persons: persons
         };
     }
@@ -163,14 +166,14 @@ class SantaListManager {
 
     async saveList() {
         if (!this.validateForm()) {
-            alert('Please fill in all required fields correctly.');
             return;
         }
 
+        try {
         const formData = this.collectFormData();
         if (!formData) return;
 
-        try {
+        console.log('Form Data:', formData); // Debugging line
             const response = await fetch('http://localhost:8080/api/santas-lists', {  // Update this line
                 method: 'POST',
                 headers: {
@@ -181,7 +184,8 @@ class SantaListManager {
             });
 
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                alert(`Error: ${response.statusText}`);
+                throw new Error(`HTTP error! status: ${response.status}, message: ${response.statusText}`);
             }
 
             const result = await response.json();
@@ -189,8 +193,8 @@ class SantaListManager {
             window.location.href = 'dashboard.html';
 
         } catch (error) {
-            console.error('Error saving Santa\'s list:', error);
-            alert('Failed to save Santa\'s list. Please try again.');
+            console.error('Error saving Santa\'s list:', error.message);
+            alert('Failed to save Santa\'s list. Please try again. Error: ' + error.message);
         }
     }
 
@@ -202,7 +206,6 @@ class SantaListManager {
 class CreateList extends SantaListManager {
     constructor() {
         super();
-        this._initializeEventListeners();
     }
 }
 

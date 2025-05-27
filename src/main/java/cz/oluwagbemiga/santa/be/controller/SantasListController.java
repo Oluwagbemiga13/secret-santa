@@ -36,6 +36,7 @@ public class SantasListController {
     @Operation(summary = "Create a new Santa's list")
     @PostMapping
     public ResponseEntity<SantasListDTO> createSantasList(@RequestBody @Valid SantasListDTO santasListDTO) {
+        log.debug("Santa's list creation request: {}", santasListDTO);
         SantasListDTO createdList = santasListService.createSantasList(santasListDTO);
         return ResponseEntity.ok(createdList);
     }
@@ -72,7 +73,7 @@ public class SantasListController {
 
     @Operation(summary = "Edit a person in a Santa's list")
     @PutMapping("/{id}/persons/{personId}")
-    public ResponseEntity<SantasListDTO> editPersonInSantasList(@PathVariable UUID id, @PathVariable Long personId, @RequestBody @Valid PersonDTO personDTO) {
+    public ResponseEntity<SantasListDTO> editPersonInSantasList(@PathVariable UUID id, @PathVariable UUID personId, @RequestBody @Valid PersonDTO personDTO) {
         SantasListDTO updatedList = santasListService.editPersonInSantasList(id, personId, personDTO);
         return ResponseEntity.ok(updatedList);
     }
@@ -96,6 +97,7 @@ public class SantasListController {
         emailService.sendRequest(id);
         return ResponseEntity.ok().build();
     }
+
     @Operation(summary = "Get details of a Santa's list")
     @GetMapping("/{id}/details")
     public ListDetails getListDetails(@PathVariable UUID id) {

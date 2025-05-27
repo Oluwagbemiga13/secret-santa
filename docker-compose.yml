@@ -13,25 +13,25 @@ services:
     ports:
       - "5432:5432"
 
-  app:
-    build: .
-    container_name: secret-santa-app
-    ports:
-      - "8080:8080"
-    depends_on:
-      - db
-    volumes:
-      - ./config:/config
-    environment:
-      SPRING_CONFIG_LOCATION: file:/config/
-      SPRING_PROFILES_ACTIVE: local,secret
-
+  #  app:
+  #    build: .
+  #    container_name: secret-santa-app
+  #    ports:
+  #      - "8080:8080"
+  #    depends_on:
+  #      - db
+  #    volumes:
+  #      - ./config:/config
+  #    environment:
+  #      SPRING_CONFIG_LOCATION: file:/config/
+  #      SPRING_PROFILES_ACTIVE: local,secret
+  #
   frontend:
     build:
       context: ./front-end
     container_name: secret-santa-fe
     ports:
-      - "5500:80"  # match your original localhost:5500
+      - "5500:80"
     restart: unless-stopped
 
 volumes:

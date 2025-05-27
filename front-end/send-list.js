@@ -40,6 +40,7 @@ class SendList {
     displayList(list) {
         document.getElementById('list-name').value = list.name;
         document.getElementById('due-date').value = list.dueDate?.split('T')[0];
+        document.getElementById("budget-per-gift").value = list.budgetPerGift
 
         const container = document.querySelector('.cards-container');
         container.innerHTML = '';
