@@ -513,3 +513,118 @@ input.error {
 .view-button:hover {
   background-color: #58ce5e;
 }
+
+/* View List Page Styles */
+
+.person-status-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.person-status-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.person-status-card .card-header {
+    background-color: #006400;
+    color: white;
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.person-status-card .card-header h3 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.person-status-card .card-body {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.person-status-card .info-row {
+    display: flex;
+    align-items: center;
+    padding: 4px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.person-status-card .info-row:last-child {
+    border-bottom: none;
+}
+
+.person-status-card .info-row label {
+    color: #666;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.person-status-card .gift-status {
+    font-size: 16px;
+}
+
+/* Update cards container for status cards */
+
+.list-content {
+    height: calc(100% - 80px);
+    padding: 20px;
+}
+
+.list-details {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+#list-header {
+    margin-bottom: 20px;
+}
+
+#participants-list {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+#participants-list .card {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    width: 90%;
+    margin-bottom: 15px;
+}
+
+/* Scrollbar styling */
+#participants-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+#participants-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+#participants-list::-webkit-scrollbar-thumb {
+    background: #006400;
+    border-radius: 4px;
+}
+
+#participants-list::-webkit-scrollbar-thumb:hover {
+    background: #004d00;
+}
+

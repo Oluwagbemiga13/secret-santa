@@ -38,6 +38,7 @@ document.querySelector('button[type="submit"]').addEventListener('click', functi
     .then(data => {
         console.log('User registered successfully:', data);
         alert('Registration successful!');
+        window.location.href = 'login.html'; 
     })
     .catch(error => {
         console.error('Error:', error.message);

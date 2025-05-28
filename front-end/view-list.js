@@ -53,6 +53,7 @@ class SantaListViewer {
             <div class="list-dates">
                 <span>Created: ${new Date(list.creationDate).toLocaleDateString()}</span>
                 <span>Due: ${new Date(list.dueDate).toLocaleDateString()}</span>
+                <span>Budget: ${list.budgetPerGift}</span>
             </div>
         `;
         

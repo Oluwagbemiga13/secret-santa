@@ -51,7 +51,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/santas-lists/**").authenticated()
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/users/info").authenticated()
-                        .requestMatchers("/api/users").authenticated()
+                        .requestMatchers("/api/users").permitAll()
                         .requestMatchers("/swagger-ui.html").permitAll()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()

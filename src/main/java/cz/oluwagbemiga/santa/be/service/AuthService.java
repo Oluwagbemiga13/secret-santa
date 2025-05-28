@@ -1,6 +1,7 @@
 package cz.oluwagbemiga.santa.be.service;
 
 import cz.oluwagbemiga.santa.be.dto.AuthResponse;
+import cz.oluwagbemiga.santa.be.entity.Role;
 import cz.oluwagbemiga.santa.be.entity.User;
 import cz.oluwagbemiga.santa.be.exception.UserLoginException;
 import cz.oluwagbemiga.santa.be.repository.UserRepository;
@@ -31,6 +32,31 @@ public class AuthService {
         if (!passwordEncoder.matches(password, user.getPassword())) {
             log.error("Invalid password for user: {}", username);
             throw new UserLoginException("Invalid username or password");
+        }
+
+        String token = jwtUtil.generateToken(user.getUuid(), user.getRole());
+        log.debug("Authentication successful for user: {}", username);
+
+        return new AuthResponse(token, username);
+    }
+
+    public AuthResponse authenticateAdmin(String username, String password) {
+        log.debug("Attempting to authenticate user: {}", username);
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> {
+                    log.error("User not found: {}", username);
+                    return new UserLoginException("Invalid username or password");
+                });
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            log.error("Invalid password for user: {}", username);
+            throw new UserLoginException("Invalid username or password");
+        }
+
+        if (!user.getRole().equals(Role.ADMIN)) {
+            log.error("User is not an admin: {}", username);
+            throw new UserLoginException("User is not authorized to perform this action");
         }
 
         String token = jwtUtil.generateToken(user.getUuid(), user.getRole());

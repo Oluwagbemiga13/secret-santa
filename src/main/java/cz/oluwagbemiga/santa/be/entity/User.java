@@ -31,14 +31,5 @@ public class User {
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
     private List<SantasList> santasLists = new ArrayList<>();
 
-    public void addSantasList(SantasList santasList) {
-        santasList.setOwner(this);
-        santasLists.add(santasList);
-    }
-
-    public void removeSantasList(SantasList santasList) {
-        santasList.setOwner(null);
-        santasLists.remove(santasList);
-    }
 }
 
