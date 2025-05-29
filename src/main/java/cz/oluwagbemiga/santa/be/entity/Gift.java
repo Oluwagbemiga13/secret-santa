@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.UUID;
 
 @Entity
@@ -24,6 +26,14 @@ public class Gift {
     private String description;
 
     private String affiliateLink;
+
+    private int budget;
+
+    private LocalDate expirationDate;
+
+    @Builder.Default
+    @Enumerated(EnumType.ORDINAL)
+    private GiftStatus status = GiftStatus.CREATED;
 
     @OneToOne(mappedBy = "desiredGift")
     private Person person;

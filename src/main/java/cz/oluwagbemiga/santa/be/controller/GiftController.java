@@ -1,7 +1,6 @@
 package cz.oluwagbemiga.santa.be.controller;
 
 import cz.oluwagbemiga.santa.be.dto.GiftDTO;
-import cz.oluwagbemiga.santa.be.dto.SantasListDTO;
 import cz.oluwagbemiga.santa.be.service.GiftService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -25,6 +24,6 @@ public class GiftController {
     @PutMapping("/{giftId}")
     public ResponseEntity<GiftDTO> updateGift(@PathVariable UUID giftId, @RequestBody @Valid GiftDTO giftDTO) {
         log.debug("Updating gift: {}", giftDTO);
-        return ResponseEntity.ok(giftService.updateGift(giftId, giftDTO));
+        return ResponseEntity.ok(giftService.fillDesiredGift(giftId, giftDTO));
     }
 }

@@ -21,20 +21,14 @@ public class ElfService {
 
     private final SantasListRepository santasListRepository;
 
+    private final GiftService giftService;
+
     private final SantasListService santasListService;
 
     private final EmailService emailService;
 
-    @Value("${secret-santa.fe.base-url}")
-    private String baseUrl;
 
-    @Value("${secret-santa.scheduling.check-interval}")
-    private int checkInterval;
-
-
-
-
-    /**
+    /**+
      * This method is periodically called to process all SantasLists that are not locked.
      */
     @Scheduled(fixedRateString = "${secret-santa.scheduling.check-interval}")
@@ -91,8 +85,9 @@ public class ElfService {
                         in.get(i).setRecipient(in.get(0));
                     } else {
                         in.get(i).setRecipient(in.get(i + 1));
+                        log.debug("Assigning recipient with UUID: {} to UUID: {}", in.get(i + 1).getId(), in.get(i).getId());
+
                     }
-                    log.debug("Assigning recipient with UUID: {} to UUID: {}", in.get(i + 1).getId(), in.get(i).getId());
                 });
     santasList.setLocked(true);
     }

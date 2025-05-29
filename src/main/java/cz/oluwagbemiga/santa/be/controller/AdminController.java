@@ -1,6 +1,8 @@
 package cz.oluwagbemiga.santa.be.controller;
 
 import cz.oluwagbemiga.santa.be.dto.AdminStatistics;
+import cz.oluwagbemiga.santa.be.dto.GiftDTO;
+import cz.oluwagbemiga.santa.be.entity.GiftStatus;
 import cz.oluwagbemiga.santa.be.service.AdminService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -8,9 +10,9 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -37,5 +39,15 @@ public class AdminController {
     @GetMapping("/statistics")
     public ResponseEntity<AdminStatistics> getStatistics() {
         return ResponseEntity.ok(adminService.getStatistics());
+    }
+
+    @GetMapping("/gifts/status/{status}")
+    public ResponseEntity<List<GiftDTO>> getAllByStatus(@PathVariable String status){
+            return ResponseEntity.ok(adminService.getAllGiftsByStatus(GiftStatus.valueOf(status)));
+    }
+
+    @PostMapping("/gifts/update")
+    public ResponseEntity<GiftDTO> updateGift(@RequestBody GiftDTO giftDTO) {
+        return ResponseEntity.ok(adminService.addAffiliateLink(giftDTO));
     }
 }

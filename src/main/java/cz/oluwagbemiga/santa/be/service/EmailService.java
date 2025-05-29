@@ -3,6 +3,8 @@ package cz.oluwagbemiga.santa.be.service;
 import cz.oluwagbemiga.santa.be.dto.GiftDTO;
 import cz.oluwagbemiga.santa.be.dto.PersonDTO;
 import cz.oluwagbemiga.santa.be.dto.SantasListDTO;
+import cz.oluwagbemiga.santa.be.entity.Gift;
+import cz.oluwagbemiga.santa.be.entity.GiftStatus;
 import cz.oluwagbemiga.santa.be.entity.ListStatus;
 import cz.oluwagbemiga.santa.be.entity.Person;
 import cz.oluwagbemiga.santa.be.mapper.GiftMapper;
@@ -45,6 +47,8 @@ public class EmailService {
 
     /**
      * Sends a request to all persons in the Santa's list to select their gifts.
+     * Create gifts and attaches them to Persons
+     *
      * @param santasListId
      */
     public void sendRequest(UUID santasListId) {
@@ -53,7 +57,9 @@ public class EmailService {
         SantasListDTO santasList = santasListService.getSantasListById(santasListId);
 
         for (PersonDTO personDTO : santasList.persons()) {
-            GiftDTO giftDTO = giftService.createGift();
+            GiftDTO giftDTO = giftService.createGift(
+                    santasList.budgetPerGift(),
+                    santasList.dueDate().minusDays(1));
             personService.assignPersonGift(personDTO.id(), giftMapper.toEntity(giftDTO));
             try {
                 sendEmail(personDTO.email(), "Secret Santa List: " + santasList.name(),
@@ -67,6 +73,7 @@ public class EmailService {
 
     /**
      * Builds email content for requesting gift selection.
+     *
      * @param person
      * @param santasList
      * @param giftId
@@ -101,19 +108,27 @@ public class EmailService {
         Person person = personService.findById(personDTO.id());
         StringBuilder resultContent = new StringBuilder();
         Person recipient = person.getRecipient();
+        Gift desiredGift = recipient.getDesiredGift();
         resultContent.append("<h1>Hello ").append(person.getName()).append("!</h1>")
                 .append("<p>You are part of the Secret Santa list: <strong>").append(santasList.name()).append("</strong>.</p>")
                 .append("<p>Due Date: ").append(santasList.name()).append("</p>")
-                .append("<p>Your assigned gift is: <strong>").append(recipient.getDesiredGift().getName()).append("</strong></p>")
-                .append("<p>And you are giving it to: <strong>").append(recipient.getName()).append("</strong>")
-                .append("<p> Details: ").append(recipient.getDesiredGift().getDescription())
-                .append("<p>Happy Holidays!</p>");
+                .append("<p>Your assigned gift is: <strong>").append(desiredGift.getName()).append("</strong></p>")
+                .append("<p>Budget is <strong>").append(desiredGift.getBudget()).append("</strong> </p>")
+                .append("<p>It should be purchased for: <strong>").append(recipient.getName()).append("</strong>");
+        if (desiredGift.getDescription() == null) {
+            resultContent.append("<p> Details: ").append(desiredGift.getDescription());
+        }
+        if (desiredGift.getStatus().equals(GiftStatus.LINKED)) {
+            resultContent.append("<p>Elfes found perfect match. <strong> <a href='").append(desiredGift.getAffiliateLink()).append("'>");
+        }
+        resultContent.append("<p>Happy Holidays!</p>");
         return resultContent.toString();
     }
 
     private void sendEmail(String to, String subject, String content) throws MessagingException {
-        if(!emailServiceEnabled) {
+        if (!emailServiceEnabled) {
             log.warn("Email service is disabled. Email not sent to: {}", to);
+            log.debug("Email content: {}", content);
             return;
         }
         MimeMessage message = mailSender.createMimeMessage();
