@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send List</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="apiUtils.js"></script>
+    <script src="send-list.js" defer></script>
+</head>
+<body>
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>Confirm Your List</h1>
+    </div>
+    <div class="dashboard-content">
+        <div class="list-details-form">
+            <div class="input-group">
+                <label for="list-name">List Name:</label>
+                <input type="text" id="list-name" readonly>
+            </div>
+            <div class="input-group">
+                <label for="due-date">Due Date:</label>
+                <input type="date" id="due-date" readonly>
+            </div>
+            <div class="input-group">
+                <label for="budget-per-gift">Budget per gift:</label>
+                <input type="text" id="budget-per-gift" readonly>
+            </div>
+        </div>
+        <div class="cards-container">
+            <!-- Person cards will be dynamically inserted here -->
+        </div>
+        <div class="buttons-container">
+            <button id="send-list-button" class="action-button">Send List</button>
+            <button id="edit-list-button" class="action-button">Edit List</button>
+        </div>
+    </div>
+</div>
+</body>
+</html>
