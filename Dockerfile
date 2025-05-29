@@ -13,7 +13,4 @@ WORKDIR /app
 
 COPY --from=build /app/target/secret-santa-0.0.1-SNAPSHOT.jar app.jar
 
-# Set config location to external directory
-ENV SPRING_CONFIG_LOCATION=file:/config/
-
 ENTRYPOINT ["java", "-jar", "app.jar"]

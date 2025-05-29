@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: secret-santa
+  datasource:
+    url: ${DB_URL}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    protocol: smtps
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: false
+          ssl:
+            enable: true
+
+jwt:
+  secret: ${JWT_SECRET}
+  expirationMs: ${JWT_EXPIRATION}
+
+secret-santa:
+  fe:
+    base-url: ${FE_BASE_URL}
+    gift-form-url: /gift-form.html?id=
+  scheduling:
+    check-interval: ${CHECK_INTERVAL}
+  email-service:
+    enabled: ${EMAIL_ENABLED}
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    cz.oluwagbemiga.santa.be: DEBUG
