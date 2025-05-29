@@ -37,7 +37,7 @@ public class AdminService {
     }
 
     public GiftDTO addAffiliateLink(GiftDTO giftDTO) {
-        return giftService.updateLink(giftDTO.id(),giftDTO.affiliateLink());
+        return giftService.updateLink(giftDTO.id(), giftDTO.affiliateLink());
     }
 
 }

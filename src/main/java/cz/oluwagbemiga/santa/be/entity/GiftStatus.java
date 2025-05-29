@@ -14,7 +14,7 @@ public enum GiftStatus {
     GiftStatus(String message) {
         this.message = message;
     }
-    
+
     public String getValue() {
         return this.name().replace('_', ' ');
     }

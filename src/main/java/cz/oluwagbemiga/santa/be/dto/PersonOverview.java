@@ -10,7 +10,8 @@ public record PersonOverview(
     public PersonOverview(PersonDTO personDTO) {
         this(personDTO.name(), personDTO.email(), personDTO.hasSelectedGift());
     }
-    public PersonOverview(Person person){
+
+    public PersonOverview(Person person) {
         this(
                 person.getName(),
                 person.getEmail(),

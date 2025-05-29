@@ -1,7 +1,6 @@
 package cz.oluwagbemiga.santa.be.service;
 
 import cz.oluwagbemiga.santa.be.dto.PersonDTO;
-import cz.oluwagbemiga.santa.be.dto.PersonOverview;
 import cz.oluwagbemiga.santa.be.entity.Gift;
 import cz.oluwagbemiga.santa.be.entity.Person;
 import cz.oluwagbemiga.santa.be.exception.ResourceNotFoundException;
@@ -54,7 +53,6 @@ public class PersonService {
         return personRepository.findByDesiredGiftId(giftId)
                 .orElseThrow(() -> new ResourceNotFoundException("Person not found with Gift ID: " + giftId));
     }
-
 
 
     public PersonDTO createPerson(PersonDTO personDTO) {

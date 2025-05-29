@@ -5,5 +5,5 @@ public record AdminStatistics(
         long totalSantasLists,
         long totalPersons,
         long totalGifts
-){
+) {
 }

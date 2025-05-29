@@ -9,7 +9,7 @@ public record PersonDTO(
         GiftDTO desiredGift,
         UUID recipientId
 ) {
-    public boolean hasSelectedGift(){
+    public boolean hasSelectedGift() {
         return desiredGift.name() != null;
     }
 }

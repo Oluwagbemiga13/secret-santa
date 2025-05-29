@@ -5,9 +5,9 @@ import cz.oluwagbemiga.santa.be.dto.GiftDTO;
 import cz.oluwagbemiga.santa.be.entity.GiftStatus;
 import cz.oluwagbemiga.santa.be.service.AdminService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -42,8 +42,8 @@ public class AdminController {
     }
 
     @GetMapping("/gifts/status/{status}")
-    public ResponseEntity<List<GiftDTO>> getAllByStatus(@PathVariable String status){
-            return ResponseEntity.ok(adminService.getAllGiftsByStatus(GiftStatus.valueOf(status)));
+    public ResponseEntity<List<GiftDTO>> getAllByStatus(@PathVariable String status) {
+        return ResponseEntity.ok(adminService.getAllGiftsByStatus(GiftStatus.valueOf(status)));
     }
 
     @PostMapping("/gifts/update")
