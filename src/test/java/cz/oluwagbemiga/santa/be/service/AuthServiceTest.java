@@ -26,6 +26,7 @@ import static org.mockito.Mockito.when;
 @Slf4j
 class AuthServiceTest {
 
+
     @Mock
     private UserRepository userRepository;
     @Mock
@@ -37,18 +38,63 @@ class AuthServiceTest {
     private AuthService authService;
 
     private User testUser;
+    private User adminUser;
     private final String TEST_USERNAME = "testuser";
     private final String TEST_PASSWORD = "password123";
+    private final String TEST_TOKEN = "test.jwt.token";
 
     @BeforeEach
     void setUp() {
-        log.info("Setting up test user data");
         testUser = new User();
         testUser.setUuid(UUID.randomUUID());
         testUser.setUsername(TEST_USERNAME);
         testUser.setPassword("encoded_password");
         testUser.setRole(Role.USER);
-        log.debug("Test user created with UUID: {}", testUser.getUuid());
+
+        adminUser = new User();
+        adminUser.setUuid(UUID.randomUUID());
+        adminUser.setUsername("admin");
+        adminUser.setPassword("encoded_password");
+        adminUser.setRole(Role.ADMIN);
+    }
+
+    @Test
+    void authenticateAdmin_Success() {
+        when(userRepository.findByUsername("admin")).thenReturn(Optional.of(adminUser));
+        when(passwordEncoder.matches(TEST_PASSWORD, adminUser.getPassword())).thenReturn(true);
+        when(jwtUtil.generateToken(any(UUID.class), any())).thenReturn(TEST_TOKEN);
+
+        AuthResponse response = authService.authenticateAdmin("admin", TEST_PASSWORD);
+
+        assertNotNull(response);
+        assertEquals(TEST_TOKEN, response.token());
+        assertEquals("admin", response.username());
+    }
+
+    @Test
+    void authenticateAdmin_NotAdmin() {
+        when(userRepository.findByUsername(TEST_USERNAME)).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches(TEST_PASSWORD, testUser.getPassword())).thenReturn(true);
+
+        assertThrows(UserLoginException.class,
+                () -> authService.authenticateAdmin(TEST_USERNAME, TEST_PASSWORD));
+    }
+
+    @Test
+    void authenticateAdmin_UserNotFound() {
+        when(userRepository.findByUsername("admin")).thenReturn(Optional.empty());
+
+        assertThrows(UserLoginException.class,
+                () -> authService.authenticateAdmin("admin", TEST_PASSWORD));
+    }
+
+    @Test
+    void authenticateAdmin_InvalidPassword() {
+        when(userRepository.findByUsername("admin")).thenReturn(Optional.of(adminUser));
+        when(passwordEncoder.matches(TEST_PASSWORD, adminUser.getPassword())).thenReturn(false);
+
+        assertThrows(UserLoginException.class,
+                () -> authService.authenticateAdmin("admin", TEST_PASSWORD));
     }
 
     @Test

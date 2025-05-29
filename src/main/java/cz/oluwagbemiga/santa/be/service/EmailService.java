@@ -26,6 +26,7 @@ import java.util.UUID;
 @Slf4j
 public class EmailService {
 
+
     private final JavaMailSender mailSender;
     private final SantasListService santasListService;
     private final GiftService giftService;
@@ -79,15 +80,21 @@ public class EmailService {
      * @param giftId
      * @return
      */
-    private String buildRequestContent(PersonDTO person, SantasListDTO santasList, UUID giftId) {
+    String buildRequestContent(PersonDTO person, SantasListDTO santasList, UUID giftId) {
         String giftFormFullUrl = baseUrl + giftFormUrl + giftId;
 
-        return "<h1>Hello " + person.name() + "!</h1>" +
-                "<p>You are part of the Secret Santa list: <strong>" + santasList.name() + "</strong>.</p>" +
-                "<p>Due Date: " + santasList.name() + "</p>" +
-                "<p>Please fill in the gift you want to receive at this link: " +
-                "<a href='" + giftFormFullUrl + "'>Gift Form</a></p>" +
-                "<p>Happy Holidays!</p>";
+        StringBuilder sb = new StringBuilder();
+        sb.append("<h1>Jolly Greetings, ").append(person.name()).append("! 🎅</h1>");
+        sb.append("<p>You've been added to the magical Secret Santa list: <strong>")
+                .append(santasList.name()).append("</strong>!</p>");
+        sb.append("<p>The elves need your wish by the sleigh-launch deadline: <strong>")
+                .append(santasList.dueDate()).append("</strong>.</p>");
+        sb.append("<p>Click your little elf feet over to this link and tell us what you'd love to receive: ");
+        sb.append("<a href='").append(giftFormFullUrl).append("'>Gift Form</a></p>");
+        sb.append("<p>With sugarplum dreams and peppermint wishes,</p>");
+        sb.append("<p>— Santa's Little Helpers 🎁</p>");
+
+        return sb.toString();
     }
 
     public void sendResults(UUID santasListId) {
@@ -109,23 +116,34 @@ public class EmailService {
         StringBuilder resultContent = new StringBuilder();
         Person recipient = person.getRecipient();
         Gift desiredGift = recipient.getDesiredGift();
-        resultContent.append("<h1>Hello ").append(person.getName()).append("!</h1>")
-                .append("<p>You are part of the Secret Santa list: <strong>").append(santasList.name()).append("</strong>.</p>")
-                .append("<p>Due Date: ").append(santasList.name()).append("</p>")
-                .append("<p>Your assigned gift is: <strong>").append(desiredGift.getName()).append("</strong></p>")
-                .append("<p>Budget is <strong>").append(desiredGift.getBudget()).append("</strong> </p>")
-                .append("<p>It should be purchased for: <strong>").append(recipient.getName()).append("</strong>");
-        if (desiredGift.getDescription() == null) {
-            resultContent.append("<p> Details: ").append(desiredGift.getDescription());
+        resultContent.append("<h1>Ho ho ho, ").append(person.getName()).append("! 🎄</h1>")
+                .append("<p>You've been chosen to join the enchanted Secret Santa list: <strong>")
+                .append(santasList.name()).append("</strong>! ✨</p>")
+                .append("<p>Your festive mission is to find this magical gift: <strong>")
+                .append(desiredGift.getName()).append("</strong> 🎁</p>")
+                .append("<p>The North Pole budget limit is <strong>")
+                .append(desiredGift.getBudget()).append("</strong> candy canes! 💰</p>")
+                .append("<p>You’ll be bringing cheer to: <strong>")
+                .append(recipient.getName()).append("</strong> ‍🎄</p>");
+
+        if (desiredGift.getDescription() != null && !desiredGift.getDescription().isEmpty()) {
+            resultContent.append("<p>The elves left a clue about the gift: ")
+                    .append(desiredGift.getDescription()).append("</p>");
         }
+
         if (desiredGift.getStatus().equals(GiftStatus.LINKED)) {
-            resultContent.append("<p>Elfes found perfect match. <strong> <a href='").append(desiredGift.getAffiliateLink()).append("'>");
+            resultContent.append("<p>The elves scouted a perfect gift! Click here to see it: <strong><a href='")
+                    .append(desiredGift.getAffiliateLink()).append("'>Magical Gift Link</a></strong> 🛷</p>");
         }
-        resultContent.append("<p>Happy Holidays!</p>");
+
+        resultContent.append("<p>We’re counting on you to spread joy and sparkle! ❄️</p>")
+                .append("<p>Warm peppermint wishes,</p>")
+                .append("<p>— Santa's Little Helpers </p>");
+
         return resultContent.toString();
     }
 
-    private void sendEmail(String to, String subject, String content) throws MessagingException {
+    void sendEmail(String to, String subject, String content) throws MessagingException {
         if (!emailServiceEnabled) {
             log.warn("Email service is disabled. Email not sent to: {}", to);
             log.debug("Email content: {}", content);

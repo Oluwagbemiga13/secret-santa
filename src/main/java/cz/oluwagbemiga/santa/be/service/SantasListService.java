@@ -254,7 +254,7 @@ public class SantasListService {
 
     public SantasListDTO getSantasListById(UUID id) {
         SantasList santasList = santasListRepository.findById(id)
-                .orElseThrow(() -> new InvalidRequestException("Santa's list not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Santa's list not found with ID: " + id));
         return santasListMapper.toDto(santasList);
     }
 
