@@ -41,7 +41,6 @@ class AuthServiceTest {
     private User adminUser;
     private final String TEST_USERNAME = "testuser";
     private final String TEST_PASSWORD = "password123";
-    private final String TEST_TOKEN = "test.jwt.token";
 
     @BeforeEach
     void setUp() {
@@ -62,6 +61,7 @@ class AuthServiceTest {
     void authenticateAdmin_Success() {
         when(userRepository.findByUsername("admin")).thenReturn(Optional.of(adminUser));
         when(passwordEncoder.matches(TEST_PASSWORD, adminUser.getPassword())).thenReturn(true);
+        String TEST_TOKEN = "test.jwt.token";
         when(jwtUtil.generateToken(any(UUID.class), any())).thenReturn(TEST_TOKEN);
 
         AuthResponse response = authService.authenticateAdmin("admin", TEST_PASSWORD);

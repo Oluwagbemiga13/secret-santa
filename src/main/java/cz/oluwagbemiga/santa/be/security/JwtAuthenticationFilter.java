@@ -1,4 +1,3 @@
-// File: `src/main/java/cz/oluwagbemiga/santa/be/security/JwtAuthenticationFilter.java`
 package cz.oluwagbemiga.santa.be.security;
 
 import jakarta.servlet.FilterChain;

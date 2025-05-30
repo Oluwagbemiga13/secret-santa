@@ -156,10 +156,6 @@ public class SantasListService {
         return santasListMapper.toDto(updatedSantasList);
     }
 
-    public SantasListDTO updateSantasList(SantasListDTO santasListDTO) {
-        return santasListMapper.toDto(santasListRepository.save(santasListMapper.toEntity(santasListDTO)));
-    }
-
     /**
      * Updates only approved attributes. Excluding isLocked and creationDate.
      *

@@ -25,16 +25,10 @@ public class PersonService {
     }
 
     public Person findById(UUID personId) {
-        // Fetch the person by ID
         return personRepository.findById(personId)
                 .orElseThrow(() -> new ResourceNotFoundException("Person not found with ID: " + personId));
     }
 
-
-    public PersonDTO createPerson(Person person) {
-        Person savedPerson = personRepository.save(person);
-        return personMapper.toDto(savedPerson);
-    }
 
     public void assignPersonGift(UUID personId, Gift gift) {
         Person person = personRepository.findById(personId)
@@ -57,15 +51,12 @@ public class PersonService {
 
     public PersonDTO createPerson(PersonDTO personDTO) {
         Person person = personMapper.toEntity(personDTO);
-
         Person savedPerson = personRepository.save(person);
 
-        // Return the saved entity as a DTO
         return personMapper.toDto(savedPerson);
     }
 
     public void deletePerson(UUID personId) {
-        // Delete the person by ID
         personRepository.deleteById(personId);
     }
 }
