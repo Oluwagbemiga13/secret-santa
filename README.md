@@ -40,12 +40,33 @@ A Java Spring Boot application to automate your Secret Santa gift exchange – f
 
 ### 🔄 Run with Docker Compose
 
+### 1. Create a `.env` file in the root directory with your configuration:
+```env
+# Database
+DB_URL=jdbc:postgresql://db:5432/postgres
+POSTGRES_USER=your_username
+POSTGRES_PASSWORD=your_password
+
+# JWT
+JWT_SECRET=your_jwt_secret
+JWT_EXPIRATION=3600000
+
+# Mail
+MAIL_HOST=smtp.seznam.cz
+MAIL_PORT=465
+MAIL_USERNAME=your_email@seznam.cz
+MAIL_PASSWORD=your_password
+
+# Application specific
+FE_BASE_URL=http://127.0.0.1:5501
+CHECK_INTERVAL=360000
+EMAIL_ENABLED=true
+```
+### 2. Start the application
+
 ```bash
 docker-compose up --build
 ```
-
-By default, it expects your Spring Boot app to mount `application.properties` from the `./config` directory.
-
 ---
 
 ### 🧑‍💻 Manual Setup (Local Development)
@@ -65,44 +86,26 @@ You can run a local container or use your own database. Example using Docker:
 docker run --name secretsanta-db -e POSTGRES_DB=secretsanta -e POSTGRES_USER=youruser -e POSTGRES_PASSWORD=yourpass -p 5432:5432 -d postgres
 ```
 
-#### 3. Configure your properties
 
-Create a file at `./config/application.properties` with the following:
-
-```properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/secretsanta
-spring.datasource.username=youruser
-spring.datasource.password=yourpass
-
-spring.mail.host=smtp.seznam.cz
-spring.mail.port=587
-spring.mail.username=your_email@seznam.cz
-spring.mail.password=your_email_password
-
-jwt.secret=your_jwt_secret
-```
-
-#### 4. Run the application
+#### 3. Run the application
 
 ```bash
-mvn spring-boot:run
+mvn spring-boot:run -Dspring.profiles.active=dev
 ```
 
 ---
 
-## 📁 Frontend
+### 📁 Frontend
 
-The frontend is a separate project and not bundled in this repo. It communicates with the backend API (e.g., `http://localhost:8080/api/...`).
+The frontend is served at http://localhost:5501 when running with Docker Compose.
 
 ---
 
 ## 🔍 API Documentation
 
 Once running, you can explore the full API via Swagger UI:
-
-```
 http://localhost:8080/swagger-ui.html
-```
+
 
 ---
 

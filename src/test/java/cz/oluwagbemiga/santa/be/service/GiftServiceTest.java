@@ -3,8 +3,11 @@ package cz.oluwagbemiga.santa.be.service;
 import cz.oluwagbemiga.santa.be.dto.GiftDTO;
 import cz.oluwagbemiga.santa.be.entity.Gift;
 import cz.oluwagbemiga.santa.be.entity.GiftStatus;
+import cz.oluwagbemiga.santa.be.entity.Person;
+import cz.oluwagbemiga.santa.be.exception.InvalidRequestException;
 import cz.oluwagbemiga.santa.be.mapper.GiftMapper;
 import cz.oluwagbemiga.santa.be.repository.GiftRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -16,10 +19,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@Slf4j
 class GiftServiceTest {
 
     @Mock
@@ -158,5 +161,95 @@ class GiftServiceTest {
         verify(giftRepository, times(1)).findById(gift.getId());
         verify(giftRepository, times(1)).save(gift);
         verify(giftMapper, times(1)).toDto(gift);
+    }
+
+    @Test
+    void testUpdateStatus() {
+        when(giftRepository.findById(gift.getId())).thenReturn(Optional.of(gift));
+        when(giftRepository.save(gift)).thenReturn(gift);
+
+        giftService.updateStatus(gift.getId(), GiftStatus.SELECTED);
+
+        verify(giftRepository).findById(gift.getId());
+        verify(giftRepository).save(gift);
+        assertEquals(GiftStatus.SELECTED, gift.getStatus());
+        log.info("Gift status updated successfully to: {}", gift.getStatus());
+    }
+
+    @Test
+    void testUpdateStatusNotFound() {
+        UUID nonExistentId = UUID.randomUUID();
+        when(giftRepository.findById(nonExistentId)).thenReturn(Optional.empty());
+
+        assertThrows(InvalidRequestException.class, () ->
+                giftService.updateStatus(nonExistentId, GiftStatus.SELECTED));
+        log.error("Failed to update status for non-existent gift with ID: {}", nonExistentId);
+    }
+
+    @Test
+    void testUpdateGift() {
+        GiftDTO updatedDTO = new GiftDTO(
+                gift.getId(),
+                "Updated Name",
+                "Updated Description",
+                "Updated Link",
+                200,
+                GiftStatus.SELECTED,
+                LocalDate.now().plusDays(60)
+        );
+
+        when(giftRepository.findById(gift.getId())).thenReturn(Optional.of(gift));
+        when(giftRepository.save(gift)).thenReturn(gift);
+        when(giftMapper.toDto(gift)).thenReturn(updatedDTO);
+
+        GiftDTO result = giftService.updateGift(updatedDTO);
+
+        verify(giftRepository).findById(gift.getId());
+        verify(giftRepository).save(gift);
+        assertEquals("Updated Name", result.name());
+        assertEquals(200, result.budgetPerGift());
+        log.info("Gift updated successfully with new name: {}", result.name());
+    }
+
+    @Test
+    void testFillDesiredGift() {
+        Person person = new Person();
+        person.setId(UUID.randomUUID());
+
+        when(giftRepository.findById(gift.getId())).thenReturn(Optional.of(gift));
+        when(giftRepository.save(gift)).thenReturn(gift);
+        when(giftMapper.toDto(gift)).thenReturn(giftDTO);
+        when(personService.findByGiftId(gift.getId())).thenReturn(person);
+
+        giftService.fillDesiredGift(gift.getId(), giftDTO);
+
+        verify(giftRepository).findById(gift.getId());
+        verify(giftRepository).save(gift);
+        verify(personService).findByGiftId(gift.getId());
+        verify(personService).updatePerson(person);
+        assertTrue(person.isHasSelectedGift());
+        assertEquals(GiftStatus.SELECTED, gift.getStatus());
+        log.info("Desired gift filled for person: {}", person.getId());
+    }
+
+    @Test
+    void testDeleteGift() {
+        when(giftRepository.existsById(gift.getId())).thenReturn(true);
+
+        giftService.deleteGift(gift.getId());
+
+        verify(giftRepository).existsById(gift.getId());
+        verify(giftRepository).deleteById(gift.getId());
+        log.info("Gift deleted successfully with ID: {}", gift.getId());
+    }
+
+    @Test
+    void testDeleteGiftNotFound() {
+        UUID nonExistentId = UUID.randomUUID();
+        when(giftRepository.existsById(nonExistentId)).thenReturn(false);
+
+        assertThrows(IllegalArgumentException.class, () ->
+                giftService.deleteGift(nonExistentId));
+        log.error("Failed to delete non-existent gift with ID: {}", nonExistentId);
     }
 }

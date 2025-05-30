@@ -1,38 +1,63 @@
 version: "3.8"
 
 services:
+  app:
+    build:
+      context: .
+      args:
+        - MAVEN_OPTS=-Dmaven.repo.local=/root/.m2/repository
+    container_name: secret-santa-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      # Database
+      spring.datasource.url: ${DB_URL}
+      spring.datasource.username: ${POSTGRES_USER}
+      spring.datasource.password: ${POSTGRES_PASSWORD}
+
+      # JWT
+      jwt.secret: ${JWT_SECRET}
+      jwt.expirationMs: ${JWT_EXPIRATION}
+
+      # Mail
+      spring.mail.host: ${MAIL_HOST}
+      spring.mail.port: ${MAIL_PORT}
+      spring.mail.username: ${MAIL_USERNAME}
+      spring.mail.password: ${MAIL_PASSWORD}
+      spring.mail.protocol: smtps
+      spring.mail.properties.mail.smtp.auth: "true"
+      spring.mail.properties.mail.smtp.starttls.enable: "false"
+      spring.mail.properties.mail.smtp.ssl.enable: "true"
+
+      # Application specific
+      secret-santa.fe.base-url: ${FE_BASE_URL}
+      secret-santa.scheduling.check-interval: ${CHECK_INTERVAL}
+      secret-santa.email-service.enabled: ${EMAIL_ENABLED}
+      secret-santa.fe.gift-form-url: /gift-form.html?id=
   db:
     image: postgres:15
     container_name: secret-santa-db
     environment:
       POSTGRES_DB: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - db_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
 
-  #  app:
-  #    build: .
-  #    container_name: secret-santa-app
-  #    ports:
-  #      - "8080:8080"
-  #    depends_on:
-  #      - db
-  #    volumes:
-  #      - ./config:/config
-  #    environment:
-  #      SPRING_CONFIG_LOCATION: file:/config/
-  #      SPRING_PROFILES_ACTIVE: local,secret
-  #
+
   frontend:
     build:
       context: ./front-end
     container_name: secret-santa-fe
     ports:
-      - "5500:80"
+      - "5501:80"
     restart: unless-stopped
 
 volumes:
+  maven-repo:
+    external: true
   db_data:

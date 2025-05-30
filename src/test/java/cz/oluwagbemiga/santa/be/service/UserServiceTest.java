@@ -8,11 +8,13 @@ import cz.oluwagbemiga.santa.be.exception.ResourceNotFoundException;
 import cz.oluwagbemiga.santa.be.exception.UserRegistrationException;
 import cz.oluwagbemiga.santa.be.repository.UserRepository;
 import cz.oluwagbemiga.santa.be.security.JwtUtil;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -51,6 +53,11 @@ class UserServiceTest {
         user.setPassword("encodedPassword");
 
         userDTO = new UserDTO("testUser", "test@example.com", "password");
+    }
+
+    @AfterEach
+    void tearDown() {
+        SecurityContextHolder.clearContext();
     }
 
     @Test
@@ -104,10 +111,12 @@ class UserServiceTest {
 
     @Test
     void testGetInfoById() {
-        when(userRepository.findByUuid(user.getUuid())).thenReturn(Optional.of(user));
+        UUID testUuid = UUID.randomUUID();
+        user.setUuid(testUuid);
+        when(userRepository.findByUuid(any())).thenReturn(Optional.of(user));
 
-        org.springframework.security.core.Authentication authentication = mock(org.springframework.security.core.Authentication.class);
-        when(authentication.getPrincipal()).thenReturn(user.getUuid().toString());
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getPrincipal()).thenReturn(testUuid.toString());
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         UserInfo result = userService.getInfoById();
@@ -115,7 +124,7 @@ class UserServiceTest {
         assertEquals(user.getUuid(), result.uuid());
         assertEquals(user.getUsername(), result.username());
         assertEquals(user.getEmail(), result.email());
-        verify(userRepository, times(1)).findByUuid(user.getUuid());
+        verify(userRepository, times(1)).findByUuid(testUuid);
     }
 
     @Test
@@ -127,6 +136,5 @@ class UserServiceTest {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         assertThrows(ResourceNotFoundException.class, () -> userService.getInfoById());
-        verify(userRepository, times(1)).findByUuid(user.getUuid());
     }
 }

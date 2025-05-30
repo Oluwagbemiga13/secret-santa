@@ -9,14 +9,18 @@ import cz.oluwagbemiga.santa.be.entity.ListStatus;
 import cz.oluwagbemiga.santa.be.entity.Person;
 import cz.oluwagbemiga.santa.be.mapper.GiftMapper;
 import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -25,7 +29,11 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@Slf4j
 class EmailServiceTest {
+
+    @Mock
+    private JavaMailSender mailSender;
 
     @Mock
     private SantasListService santasListService;
@@ -47,7 +55,6 @@ class EmailServiceTest {
 
     private SantasListDTO santasListDTO;
     private PersonDTO personDTO;
-    private PersonDTO recipientDTO;
     private GiftDTO giftDTO;
 
     @BeforeEach
@@ -218,5 +225,89 @@ class EmailServiceTest {
         verify(personService).findById(any());
     }
 
+    @Test
+    void testSendRequest() {
+        UUID listId = santasListDTO.id();
+        UUID giftId = UUID.randomUUID();
+        Gift gift = new Gift();
+        gift.setId(giftId);
+
+        when(santasListService.getSantasListById(listId)).thenReturn(santasListDTO);
+        when(giftService.createGift(anyInt(), any())).thenReturn(giftDTO);
+        when(giftMapper.toEntity(giftDTO)).thenReturn(gift);
+        doNothing().when(personService).assignPersonGift(any(), any());
+
+        emailServiceUnderTest.sendRequest(listId);
+
+        verify(santasListService).getSantasListById(listId);
+        verify(giftService).createGift(santasListDTO.budgetPerGift(),
+                santasListDTO.dueDate().minusDays(1));
+        verify(personService).assignPersonGift(personDTO.id(), gift);
+        verify(santasListService).updateStatus(listId, ListStatus.PEOPLE_SELECTING_GIFTS);
+        log.info("Send request completed for list: {}", listId);
+    }
+
+    @Test
+    void testSendRequest_HandlesEmailException() throws MessagingException {
+        UUID listId = santasListDTO.id();
+        Gift gift = new Gift();
+        gift.setId(UUID.randomUUID());
+
+        when(santasListService.getSantasListById(listId)).thenReturn(santasListDTO);
+        when(giftService.createGift(anyInt(), any())).thenReturn(giftDTO);
+        when(giftMapper.toEntity(giftDTO)).thenReturn(gift);
+        doNothing().when(personService).assignPersonGift(any(), any());
+        doThrow(new MessagingException("Failed to send email"))
+                .when(emailService).sendEmail(anyString(), anyString(), anyString());
+
+        emailServiceUnderTest.sendRequest(listId);
+
+        verify(santasListService).updateStatus(listId, ListStatus.PEOPLE_SELECTING_GIFTS);
+        log.error("Failed to send request emails for list: {}", listId);
+    }
+
+    @Test
+    void testBuildRequestContent() {
+        String baseUrl = "http://localhost:8080";
+        String giftFormUrl = "/gift-form/";
+        UUID giftId = UUID.randomUUID();
+
+        ReflectionTestUtils.setField(emailServiceUnderTest, "baseUrl", baseUrl);
+        ReflectionTestUtils.setField(emailServiceUnderTest, "giftFormUrl", giftFormUrl);
+
+        String content = emailServiceUnderTest.buildRequestContent(personDTO, santasListDTO, giftId);
+
+        assertNotNull(content);
+        assertTrue(content.contains(personDTO.name()));
+        assertTrue(content.contains(santasListDTO.name()));
+        assertTrue(content.contains(baseUrl + giftFormUrl + giftId));
+        assertTrue(content.contains(santasListDTO.dueDate().toString()));
+        log.info("Request content built successfully for person: {}", personDTO.name());
+    }
+
+    @Test
+    void testSendEmail_WhenServiceDisabled() throws MessagingException {
+        ReflectionTestUtils.setField(emailServiceUnderTest, "emailServiceEnabled", false);
+        ReflectionTestUtils.setField(emailServiceUnderTest, "mailUsername", "test@test.com");
+
+        emailServiceUnderTest.sendEmail("to@test.com", "subject", "content");
+
+        verify(mailSender, never()).send(any(MimeMessage.class));
+        log.info("Email service disabled - email not sent");
+    }
+
+    @Test
+    void testSendEmail_WhenServiceEnabled() throws MessagingException {
+        ReflectionTestUtils.setField(emailServiceUnderTest, "emailServiceEnabled", true);
+        ReflectionTestUtils.setField(emailServiceUnderTest, "mailUsername", "test@test.com");
+
+        MimeMessage mimeMessage = mock(MimeMessage.class);
+        when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+
+        emailServiceUnderTest.sendEmail("to@test.com", "subject", "content");
+
+        verify(mailSender).send(any(MimeMessage.class));
+        log.info("Email sent successfully");
+    }
 
 }
