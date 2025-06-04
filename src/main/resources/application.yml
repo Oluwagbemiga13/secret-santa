@@ -41,5 +41,7 @@ secret-santa:
 
 logging:
   level:
-    org.springframework.security: DEBUG
+    org.springframework.security: ERROR
     cz.oluwagbemiga.santa.be: DEBUG
+    org.springframework.http.converter.json: DEBUG
+    org.springframework.web: DEBUG
