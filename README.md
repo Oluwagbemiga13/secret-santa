@@ -1,6 +1,7 @@
 # 🎅 Secret Santa App
 
 A Java Spring Boot application to automate your Secret Santa gift exchange – from participant invitation to anonymous gift assignment, all done via email!
+Frontend needs a lot of work! This is just POC and my main goal was always BE. 
 
 ---
 
@@ -27,6 +28,7 @@ A Java Spring Boot application to automate your Secret Santa gift exchange – f
 - MapStruct + Lombok
 - OpenAPI (Springdoc)
 - Docker & Docker Compose
+- JUnit + Mockito
 
 ---
 
@@ -98,6 +100,7 @@ mvn spring-boot:run -Dspring.profiles.active=dev
 ### 📁 Frontend
 
 The frontend is served at http://localhost:5501 when running with Docker Compose.
+It was my first encounter with HTML,JS,CSS so it´s working and I learned something. Next time I´ll be using propably React instead of vanilaJS and Bootstrap instead of custom CSS.
 
 ---
 
