@@ -8,7 +8,6 @@ import cz.oluwagbemiga.santa.be.entity.GiftStatus;
 import cz.oluwagbemiga.santa.be.entity.ListStatus;
 import cz.oluwagbemiga.santa.be.entity.Person;
 import cz.oluwagbemiga.santa.be.mapper.GiftMapper;
-import cz.oluwagbemiga.santa.be.mapper.PersonMapper;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -26,11 +25,9 @@ import java.util.UUID;
 @Slf4j
 public class EmailService {
 
-
     private final JavaMailSender mailSender;
     private final SantasListService santasListService;
     private final GiftService giftService;
-    private final PersonMapper personMapper;
     private final GiftMapper giftMapper;
     private final PersonService personService;
 

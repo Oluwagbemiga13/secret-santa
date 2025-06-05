@@ -11,12 +11,10 @@ public interface SantasListMapper extends GenericMapper<SantasList, SantasListDT
     @Override
     @Mapping(source = "owner.uuid", target = "ownerId")
     @Mapping(source = "budgetPerGift", target = "budgetPerGift")
-        // Explicit mapping
     SantasListDTO toDto(SantasList entity);
 
     @Override
     @Mapping(source = "ownerId", target = "owner.uuid")
     @Mapping(source = "budgetPerGift", target = "budgetPerGift")
-        // Explicit mapping
     SantasList toEntity(SantasListDTO dto);
 }

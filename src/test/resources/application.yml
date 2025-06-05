@@ -1,0 +1,40 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: test
+    password: test
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+  mail:
+    host: localhost
+    port: 1025
+    username: username
+    password: password
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: false
+          ssl:
+            enable: false
+
+jwt:
+  secret: test-secret
+  expirationMs: 36000
+
+secret-santa:
+  scheduling:
+    check-interval: 10000
+  email-service:
+    enabled: false
+  fe:
+    base-url: http://localhost:8080
+    gift-form-url: /gift-form/
+
