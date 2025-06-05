@@ -6,11 +6,12 @@ import cz.oluwagbemiga.santa.be.entity.GiftStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
+
 import java.time.LocalDate;
 import java.util.UUID;
 
 @Slf4j
-public class GiftMapperTest extends AbstractMapperTest<Gift,GiftDTO>{
+public class GiftMapperTest extends AbstractMapperTest<Gift, GiftDTO> {
 
     @Override
     protected GenericMapper<Gift, GiftDTO> mapper() {
@@ -25,7 +26,7 @@ public class GiftMapperTest extends AbstractMapperTest<Gift,GiftDTO>{
                 .description("A great book")
                 .affiliateLink("http://example.com/book")
                 .budget(50)
-                .expirationDate(LocalDate.of(2026,1,1))
+                .expirationDate(LocalDate.of(2026, 1, 1))
                 .status(GiftStatus.CREATED)
                 .build();
 
@@ -38,15 +39,15 @@ public class GiftMapperTest extends AbstractMapperTest<Gift,GiftDTO>{
         String description = "A great book";
         String affiliateLink = "http://example.com/book";
         int budgetPerGift = 50;
-        LocalDate expirationDate = LocalDate.of(2026,1,1);
+        LocalDate expirationDate = LocalDate.of(2026, 1, 1);
         GiftStatus status = GiftStatus.CREATED;
 
         return new GiftDTO(id, name, description, affiliateLink, budgetPerGift, status, expirationDate);
     }
 
     @Test
-    void test(){
-        testMapper();
+    void testMapper() {
+        test();
     }
 
 }

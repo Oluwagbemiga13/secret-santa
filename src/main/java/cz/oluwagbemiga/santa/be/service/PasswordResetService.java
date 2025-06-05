@@ -7,8 +7,8 @@ import cz.oluwagbemiga.santa.be.repository.PasswordResetTokenRepository;
 import cz.oluwagbemiga.santa.be.repository.UserRepository;
 import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,16 +21,13 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class PasswordResetService {
 
-    @Autowired
-    private PasswordResetTokenRepository tokenRepo;
-    @Autowired
-    private UserRepository userRepo;
-    @Autowired
-    private EmailService emailService;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final PasswordResetTokenRepository tokenRepo;
+    private final UserRepository userRepo;
+    private final EmailService emailService;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public void sendResetLink(String email) throws MessagingException, UsernameNotFoundException, InvalidRequestException {

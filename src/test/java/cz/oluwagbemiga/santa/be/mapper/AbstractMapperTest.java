@@ -2,7 +2,6 @@ package cz.oluwagbemiga.santa.be.mapper;
 
 
 import lombok.extern.slf4j.Slf4j;
-import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
@@ -24,7 +23,7 @@ public abstract class AbstractMapperTest<E, D> {
     protected abstract D dtoInstance();
 
 
-    protected void testMapper() {
+    protected void test() {
         D actualDto = mapper().toDto(entityInstance());
         assertDtoEquals(dtoInstance(), actualDto);
 
