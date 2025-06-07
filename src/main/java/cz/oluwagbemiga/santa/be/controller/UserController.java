@@ -3,29 +3,26 @@ package cz.oluwagbemiga.santa.be.controller;
 import cz.oluwagbemiga.santa.be.dto.AuthResponse;
 import cz.oluwagbemiga.santa.be.dto.UserDTO;
 import cz.oluwagbemiga.santa.be.dto.UserInfo;
+import cz.oluwagbemiga.santa.be.exception.ErrorResponse;
 import cz.oluwagbemiga.santa.be.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/users")
-@SecurityScheme(
-        name = "bearerAuth",
-        type = SecuritySchemeType.HTTP,
-        scheme = "bearer",
-        bearerFormat = "JWT"
-)
-@CrossOrigin(origins = "http://127.0.0.1:5500/register.html")
+@Tag(name = "User Management", description = "Operations related to user management.")
 public class UserController {
 
     private final UserService userService;
@@ -42,19 +39,21 @@ public class UserController {
                     @ApiResponse(
                             responseCode = "400",
                             description = "Invalid input or username/email already exists",
-                            content = @Content(schema = @Schema(implementation = cz.oluwagbemiga.santa.be.exception.ErrorResponse.class))
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
                     )
             }
     )
     @PostMapping
-    public ResponseEntity<AuthResponse> register(@RequestBody @Valid UserDTO userDTO) {
+    public ResponseEntity<AuthResponse> register(
+            @Parameter(description = "User data for registration", required = true)
+            @RequestBody @Valid UserDTO userDTO) {
         AuthResponse response = userService.register(userDTO);
         return ResponseEntity.ok(response);
     }
 
     @Operation(
-            summary = "Delete a user account",
-            description = "Deletes a user account by ID. Requires authentication. Users can only delete their own account, admins can delete any account.",
+            summary = "Delete user account",
+            description = "Permanently removes a user account from the system",
             security = @SecurityRequirement(name = "bearerAuth"),
             responses = {
                     @ApiResponse(
@@ -62,25 +61,52 @@ public class UserController {
                             description = "User successfully deleted"
                     ),
                     @ApiResponse(
+                            responseCode = "401",
+                            description = "Unauthorized - Authentication required",
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+                    ),
+                    @ApiResponse(
                             responseCode = "403",
-                            description = "Forbidden - Not authorized to delete this user"
+                            description = "Forbidden - Insufficient permissions",
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "User not found"
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "Unauthorized - Not authenticated"
+                            description = "User not found",
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
                     )
             }
     )
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteUser(
+            @Parameter(description = "UUID of the user to delete", required = true)
+            @PathVariable UUID id) {
         userService.deleteUser(id);
         return ResponseEntity.ok().build();
     }
 
+    @Operation(
+            summary = "Retrieve user information",
+            description = "Fetches the current user's information based on their authentication token",
+            security = @SecurityRequirement(name = "bearerAuth"),
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "User information retrieved successfully",
+                            content = @Content(schema = @Schema(implementation = UserInfo.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Unauthorized - Authentication required",
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "User information not found",
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+                    )
+            }
+    )
     @GetMapping("/info")
     public ResponseEntity<UserInfo> getUserInfo() {
         UserInfo userInfo = userService.getInfoById();

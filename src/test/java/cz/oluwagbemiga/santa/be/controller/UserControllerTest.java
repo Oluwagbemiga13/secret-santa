@@ -52,10 +52,10 @@ class UserControllerTest {
 
     @Test
     void deleteUser() {
-        ResponseEntity<Void> response = userController.deleteUser(1L);
+        ResponseEntity<Void> response = userController.deleteUser(userId);
 
         assertEquals(200, response.getStatusCode().value());
-        verify(userService).deleteUser(1L);
+        verify(userService).deleteUser(userId);
     }
 
     @Test

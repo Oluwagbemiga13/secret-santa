@@ -43,6 +43,13 @@ public class EmailService {
     @Value("${secret-santa.email-service.enabled}")
     private boolean emailServiceEnabled;
 
+    public static boolean isValidEmail(String email) {
+        if (email == null) return false;
+
+        String regex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
+        return email.matches(regex);
+    }
+
     /**
      * Sends a request to all persons in the Santa's list to select their gifts.
      * Create gifts and attaches them to Persons
@@ -50,22 +57,24 @@ public class EmailService {
      * @param santasListId
      */
     public void sendRequest(UUID santasListId) {
+        UUID userId = UUID.fromString(SecurityContextHolder.getContext().getAuthentication().toString());
 
-        log.info(SecurityContextHolder.getContext().getAuthentication().toString());
         SantasListDTO santasList = santasListService.getSantasListById(santasListId);
 
-        for (PersonDTO personDTO : santasList.persons()) {
-            GiftDTO giftDTO = giftService.createGift(
-                    santasList.budgetPerGift(),
-                    santasList.dueDate().minusDays(1));
-            personService.assignPersonGift(personDTO.id(), giftMapper.toEntity(giftDTO));
-            try {
-                sendEmail(personDTO.email(), "Secret Santa List: " + santasList.name(),
-                        buildRequestContent(personDTO, santasList, giftDTO.id()));
-            } catch (MessagingException e) {
-                log.error("Failed to send email to: {} - {}", personDTO.email(), e.getMessage());
+        if (santasList.ownerId().equals(userId))
+
+            for (PersonDTO personDTO : santasList.persons()) {
+                GiftDTO giftDTO = giftService.createGift(
+                        santasList.budgetPerGift(),
+                        santasList.dueDate().minusDays(1));
+                personService.assignPersonGift(personDTO.id(), giftMapper.toEntity(giftDTO));
+                try {
+                    sendEmail(personDTO.email(), "Secret Santa List: " + santasList.name(),
+                            buildRequestContent(personDTO, santasList, giftDTO.id()));
+                } catch (MessagingException e) {
+                    log.error("Failed to send email to: {} - {}", personDTO.email(), e.getMessage());
+                }
             }
-        }
         santasListService.updateStatus(santasListId, ListStatus.PEOPLE_SELECTING_GIFTS);
     }
 
@@ -152,7 +161,7 @@ public class EmailService {
         helper.setTo(to);
         helper.setFrom(mailUsername);
         helper.setSubject(subject);
-        helper.setText(content, true); // true for HTML content
+        helper.setText(content, true);
 
         mailSender.send(message);
     }

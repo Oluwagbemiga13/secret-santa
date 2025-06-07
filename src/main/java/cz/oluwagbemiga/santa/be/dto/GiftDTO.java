@@ -1,6 +1,5 @@
 package cz.oluwagbemiga.santa.be.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import cz.oluwagbemiga.santa.be.entity.GiftStatus;
 
 import java.time.LocalDate;
@@ -11,7 +10,6 @@ public record GiftDTO(
         String name,
         String description,
         String affiliateLink,
-        @JsonProperty(value = "budgetPerGift", required = true)
         int budgetPerGift,
         GiftStatus status,
         LocalDate expirationDate

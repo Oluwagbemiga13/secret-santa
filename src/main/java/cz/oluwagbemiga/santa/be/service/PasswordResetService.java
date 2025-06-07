@@ -2,20 +2,20 @@ package cz.oluwagbemiga.santa.be.service;
 
 import cz.oluwagbemiga.santa.be.entity.PasswordResetToken;
 import cz.oluwagbemiga.santa.be.entity.User;
-import cz.oluwagbemiga.santa.be.exception.InvalidRequestException;
 import cz.oluwagbemiga.santa.be.repository.PasswordResetTokenRepository;
 import cz.oluwagbemiga.santa.be.repository.UserRepository;
 import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -29,14 +29,19 @@ public class PasswordResetService {
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
 
-    @Transactional
-    public void sendResetLink(String email) throws MessagingException, UsernameNotFoundException, InvalidRequestException {
-        User user = userRepo.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("Email not found"));
+    @Value("${secret-santa.fe.base-url}")
+    private String baseUrl;
 
+    @Transactional
+    public void sendResetLink(String email) {
+        Optional<User> opt = userRepo.findByEmail(email);
+        if (opt.isEmpty()) return;
+
+        User user = opt.get();
         boolean hasValidToken = tokenRepo.existsByUserAndExpiryDateAfter(user, LocalDateTime.now());
         if (hasValidToken) {
-            throw new InvalidRequestException("A reset link has already been sent. Please check your email.");
+            log.debug("User {} already has a valid password reset token", user.getEmail());
+            // Ignored to prevent sending multiple emails and exposing user's email existence
         }
         LocalDateTime expiry = LocalDateTime.now().plusMinutes(30);
 
@@ -46,9 +51,14 @@ public class PasswordResetService {
         resetToken.setExpiryDate(expiry);
         PasswordResetToken saved = tokenRepo.save(resetToken);
 
-        String link = "http://127.0.0.1:5501/reset-password.html?token=" + saved.getToken();
-        emailService.sendEmail(user.getEmail(), "Reset your password",
-                "Click here to reset your password: " + link);
+        String link = baseUrl + "/reset-password.html?token=" + saved.getToken();
+        try {
+            emailService.sendEmail(user.getEmail(), "Reset your password",
+                    "Click here to reset your password: " + link);
+        } catch (MessagingException e) {
+            log.error("Something went wrong went sending reset link to {}, message : {}", user.getEmail(), e.getMessage());
+            // Ignored to prevent sending multiple emails and exposing user's email existence
+        }
         log.debug("Resent password link : {}", link);
     }
 
