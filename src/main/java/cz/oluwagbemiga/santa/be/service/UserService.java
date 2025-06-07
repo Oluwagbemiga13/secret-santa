@@ -12,7 +12,6 @@ import cz.oluwagbemiga.santa.be.security.JwtUtil;
 import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,7 +25,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-    private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
@@ -66,8 +64,12 @@ public class UserService {
     }
 
 
-    public void deleteUser(Long id) {
-        throw new NotImplementedException("Delete user functionality is not implemented yet.");
+    public void deleteUser(UUID uuid) {
+        UUID userId = UUID.fromString(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
+        if (!userId.equals(uuid)) {
+            throw new IllegalArgumentException("You can only delete your own account");
+        }
+        userRepository.deleteById(uuid);
     }
 
     public User findUserById(String userUuidStr) {

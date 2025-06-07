@@ -24,44 +24,38 @@ public class AuthService {
         log.debug("Attempting to authenticate user: {}", username);
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> {
-                    log.error("User not found: {}", username);
-                    return new UserLoginException("Invalid username or password");
-                });
+                .orElseThrow(AuthService::getException);
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            log.error("Invalid password for user: {}", username);
-            throw new UserLoginException("Invalid username or password");
+            throw getException();
         }
 
         String token = jwtUtil.generateToken(user.getUuid(), user.getRole());
-        log.debug("Authentication successful for user: {}", username);
+        log.debug("Authentication successful for user: {}", user.getUuid());
 
         return new AuthResponse(token, username);
     }
 
     public AuthResponse authenticateAdmin(String username, String password) {
-        log.debug("Attempting to authenticate user: {}", username);
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> {
-                    log.error("User not found: {}", username);
-                    return new UserLoginException("Invalid username or password");
-                });
+                .orElseThrow(AuthService::getException);
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            log.error("Invalid password for user: {}", username);
-            throw new UserLoginException("Invalid username or password");
+            throw getException();
         }
 
         if (!user.getRole().equals(Role.ADMIN)) {
-            log.error("User is not an admin: {}", username);
-            throw new UserLoginException("User is not authorized to perform this action");
+            throw getException();
         }
 
         String token = jwtUtil.generateToken(user.getUuid(), user.getRole());
-        log.debug("Authentication successful for user: {}", username);
+        log.debug("Authentication successful for admin: {}", user.getUuid());
 
         return new AuthResponse(token, username);
+    }
+
+    private static UserLoginException getException() {
+        return new UserLoginException("Invalid username or password");
     }
 }

@@ -159,7 +159,7 @@ class EmailServiceTest {
         Person recipient = mock(Person.class);
         Gift gift = mock(Gift.class);
 
-        when(santasListService.getSantasListById(santasListDTO.id())).thenReturn(santasListDTO);
+        when(santasListService.findById(santasListDTO.id())).thenReturn(santasListDTO);
         when(personService.findById(any())).thenReturn(person);
         when(person.getRecipient()).thenReturn(recipient);
         when(recipient.getDesiredGift()).thenReturn(gift);
@@ -172,7 +172,7 @@ class EmailServiceTest {
 
         emailServiceUnderTest.sendResults(santasListDTO.id());
 
-        verify(santasListService).getSantasListById(santasListDTO.id());
+        verify(santasListService).findById(santasListDTO.id());
         verify(personService).findById(any());
     }
 
@@ -207,7 +207,7 @@ class EmailServiceTest {
         Person recipient = mock(Person.class);
         Gift gift = mock(Gift.class);
 
-        when(santasListService.getSantasListById(santasListDTO.id())).thenReturn(santasListDTO);
+        when(santasListService.findById(santasListDTO.id())).thenReturn(santasListDTO);
         when(personService.findById(any())).thenReturn(person);
         when(person.getRecipient()).thenReturn(recipient);
         when(recipient.getDesiredGift()).thenReturn(gift);
@@ -221,7 +221,7 @@ class EmailServiceTest {
 
         emailServiceUnderTest.sendResults(santasListDTO.id());
 
-        verify(santasListService).getSantasListById(santasListDTO.id());
+        verify(santasListService).findById(santasListDTO.id());
         verify(personService).findById(any());
     }
 
@@ -232,14 +232,14 @@ class EmailServiceTest {
         Gift gift = new Gift();
         gift.setId(giftId);
 
-        when(santasListService.getSantasListById(listId)).thenReturn(santasListDTO);
+        when(santasListService.findById(listId)).thenReturn(santasListDTO);
         when(giftService.createGift(anyInt(), any())).thenReturn(giftDTO);
         when(giftMapper.toEntity(giftDTO)).thenReturn(gift);
         doNothing().when(personService).assignPersonGift(any(), any());
 
         emailServiceUnderTest.sendRequest(listId);
 
-        verify(santasListService).getSantasListById(listId);
+        verify(santasListService).findById(listId);
         verify(giftService).createGift(santasListDTO.budgetPerGift(),
                 santasListDTO.dueDate().minusDays(1));
         verify(personService).assignPersonGift(personDTO.id(), gift);
@@ -253,7 +253,7 @@ class EmailServiceTest {
         Gift gift = new Gift();
         gift.setId(UUID.randomUUID());
 
-        when(santasListService.getSantasListById(listId)).thenReturn(santasListDTO);
+        when(santasListService.findById(listId)).thenReturn(santasListDTO);
         when(giftService.createGift(anyInt(), any())).thenReturn(giftDTO);
         when(giftMapper.toEntity(giftDTO)).thenReturn(gift);
         doNothing().when(personService).assignPersonGift(any(), any());

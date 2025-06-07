@@ -3,6 +3,7 @@ package cz.oluwagbemiga.santa.be.service;
 import cz.oluwagbemiga.santa.be.dto.*;
 import cz.oluwagbemiga.santa.be.entity.ListStatus;
 import cz.oluwagbemiga.santa.be.entity.Person;
+import cz.oluwagbemiga.santa.be.entity.Role;
 import cz.oluwagbemiga.santa.be.entity.SantasList;
 import cz.oluwagbemiga.santa.be.exception.InvalidRequestException;
 import cz.oluwagbemiga.santa.be.exception.ResourceNotFoundException;
@@ -35,6 +36,8 @@ public class SantasListService {
     /**
      * Validates the SantasListDTO object to ensure all required fields are present and valid.
      * Throws InvalidRequestException if any validation fails.
+     * TODO: Consider using a validation framework like Hibernate Validator for more complex validations.
+     * TODO: Make
      *
      * @param santasListDTO
      */
@@ -95,8 +98,7 @@ public class SantasListService {
      * @return
      */
     public SantasListDTO editPersonInSantasList(UUID santasListId, UUID personId, PersonDTO updatedPersonDTO) {
-        SantasList santasList = santasListRepository.findById(santasListId)
-                .orElseThrow(() -> new ResourceNotFoundException("Santa's list not found with ID: " + santasListId));
+        SantasList santasList = findSantasListById(santasListId);
 
         Person person = santasList.getPersons().stream()
                 .filter(p -> p.getId().equals(personId))
@@ -118,8 +120,7 @@ public class SantasListService {
      * @return
      */
     public SantasListDTO deletePersonFromSantasList(UUID santasListId, UUID personId) {
-        SantasList santasList = santasListRepository.findById(santasListId)
-                .orElseThrow(() -> new ResourceNotFoundException("Santa's list not found with ID: " + santasListId));
+        SantasList santasList = findSantasListById(santasListId);
 
         Person person = santasList.getPersons().stream()
                 .filter(p -> p.getId().equals(personId))
@@ -144,8 +145,7 @@ public class SantasListService {
      * @return updated SantasListDTO
      */
     public SantasListDTO addPersonToSantasList(UUID santasListId, PersonDTO newPersonDTO) {
-        SantasList santasList = santasListRepository.findById(santasListId)
-                .orElseThrow(() -> new ResourceNotFoundException("Santa's list not found with ID: " + santasListId));
+        SantasList santasList = findSantasListById(santasListId);
 
         Person newPerson = personMapper.toEntity(newPersonDTO);
         newPerson.setSantasList(santasList);
@@ -168,8 +168,7 @@ public class SantasListService {
         validateSantasList(santasListDTO);
         log.info("Starting update for SantasList ID: {}", id);
 
-        SantasList santasList = santasListRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Santa's list not found with ID: " + id));
+        SantasList santasList = findSantasListById(id);
         log.debug("Found existing SantasList: {}, with {} persons", santasList.getName(), santasList.getPersons().size());
 
         santasList.setName(santasListDTO.name());
@@ -219,7 +218,7 @@ public class SantasListService {
     }
 
     /**
-     * Retrieves all Santa's lists owned by the currently authenticated user.
+     * Retrieves all Santa's lists owned by the currently authenticated user
      *
      * @return List of SantasListOverview objects representing the user's lists.
      */
@@ -237,40 +236,41 @@ public class SantasListService {
      * @param id
      */
     public void deleteSantasList(UUID id) {
-        UUID userId = UUID.fromString((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-        SantasList list = santasListRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Santa's list not found with ID: " + id));
-
-        // Check if user is NOT the owner
-        if (!list.getOwner().getUuid().equals(userId)) {
-            throw new UnauthorizedAccessException("You are not authorized to delete this Santa's list");
-        }
-        santasListRepository.deleteById(id);
+        SantasList santasList = findSantasListById(id);
+        santasListRepository.delete(santasList);
     }
 
-    public SantasListDTO getSantasListById(UUID id) {
-        SantasList santasList = santasListRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Santa's list not found with ID: " + id));
+    /**
+     * This method is only for INTERNAL usage id does not validate user privilege to view Entity.
+     *
+     * @param id
+     * @return
+     */
+    public SantasListDTO findById(UUID id) {
+        SantasList santasList = santasListRepository.findById(id).orElseThrow(() ->
+                new InvalidRequestException("Santa's list not found with ID: " + id)
+        );
         return santasListMapper.toDto(santasList);
     }
 
+    /**
+     * This method is only for INTERNAL usage id does not validate user privilege to view Entity
+     *
+     * @param id
+     * @param listStatus
+     * @return
+     */
     public SantasListDTO updateStatus(UUID id, ListStatus listStatus) {
-        SantasList santasList = santasListRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Santa's list not found with ID: " + id));
+        SantasList santasList = santasListRepository.findById(id).orElseThrow(() ->
+                new InvalidRequestException("Santa's list not found with ID: " + id)
+        );
 
         santasList.setStatus(listStatus);
         return santasListMapper.toDto(santasListRepository.save(santasList));
     }
 
-    /**
-     * Retrieves detailed information about a Santa's list by its ID.
-     *
-     * @param id
-     * @return
-     */
     public ListDetails getListDetails(UUID id) {
-        SantasList santasList = santasListRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Santa's list not found with ID: " + id));
+        SantasList santasList = findSantasListById(id);
 
         ListDetails listDetails = new ListDetails(
                 santasList.getId(),
@@ -290,11 +290,36 @@ public class SantasListService {
 
     /**
      * Retrieves all Santa's lists with the specified status.
+     * TODO: Implement security checks to ensure only authorized users can access this method.
      *
      * @param listStatus
      * @return
      */
     public List<SantasList> getAllByStatus(ListStatus listStatus) {
+        log.warn("This method is not secured. It should only be accessible to authorized users!");
         return santasListRepository.findByStatus(listStatus);
+    }
+
+    /**
+     * Finds a Santa's list by its ID and checks if the current user is authorized to access it.
+     * If the user is an admin, they can access any list.
+     * If the user is not an admin, they can only access their own lists.
+     *
+     * @param santasListId
+     * @return SantasList
+     */
+    public SantasList findSantasListById(UUID santasListId) {
+        UUID userUuid = UUID.fromString(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
+
+        SantasList santasList = santasListRepository.findById(santasListId)
+                .orElseThrow(() -> new ResourceNotFoundException("Santa's list not found with ID: " + santasListId));
+
+        if (SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains(Role.ADMIN)) {
+            return santasList;
+        }
+        if (!santasList.getOwner().getUuid().equals(userUuid)) {
+            throw new UnauthorizedAccessException("You are not authorized to access this Santa's list");
+        }
+        return santasList;
     }
 }

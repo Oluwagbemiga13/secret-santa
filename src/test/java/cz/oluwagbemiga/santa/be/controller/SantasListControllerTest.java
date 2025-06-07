@@ -71,13 +71,13 @@ class SantasListControllerTest {
 
     @Test
     void getSantasListById() {
-        when(santasListService.getSantasListById(santasListId)).thenReturn(santasListDTO);
+        when(santasListService.findById(santasListId)).thenReturn(santasListDTO);
 
         ResponseEntity<SantasListDTO> response = santasListController.getSantasListById(santasListId);
 
         assertEquals(200, response.getStatusCode().value());
         assertEquals(santasListDTO, response.getBody());
-        verify(santasListService).getSantasListById(santasListId);
+        verify(santasListService).findById(santasListId);
     }
 
     @Test
