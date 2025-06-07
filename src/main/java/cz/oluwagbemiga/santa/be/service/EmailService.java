@@ -57,12 +57,10 @@ public class EmailService {
      * @param santasListId
      */
     public void sendRequest(UUID santasListId) {
-        UUID userId = UUID.fromString(SecurityContextHolder.getContext().getAuthentication().toString());
-
-        SantasListDTO santasList = santasListService.getSantasListById(santasListId);
+        UUID userId = UUID.fromString(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
+        SantasListDTO santasList = santasListService.findById(santasListId);
 
         if (santasList.ownerId().equals(userId))
-
             for (PersonDTO personDTO : santasList.persons()) {
                 GiftDTO giftDTO = giftService.createGift(
                         santasList.budgetPerGift(),
@@ -104,7 +102,7 @@ public class EmailService {
     }
 
     public void sendResults(UUID santasListId) {
-        SantasListDTO santasList = santasListService.getSantasListById(santasListId);
+        SantasListDTO santasList = santasListService.findById(santasListId);
 
         for (PersonDTO personDTO : santasList.persons()) {
             try {

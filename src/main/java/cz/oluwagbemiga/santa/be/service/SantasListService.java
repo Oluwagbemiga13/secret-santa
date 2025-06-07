@@ -240,13 +240,30 @@ public class SantasListService {
         santasListRepository.delete(santasList);
     }
 
-    public SantasListDTO getSantasListById(UUID id) {
-        SantasList santasList = findSantasListById(id);
+    /**
+     * This method is only for INTERNAL usage id does not validate user privilege to view Entity.
+     *
+     * @param id
+     * @return
+     */
+    public SantasListDTO findById(UUID id) {
+        SantasList santasList = santasListRepository.findById(id).orElseThrow(() ->
+                new InvalidRequestException("Santa's list not found with ID: " + id)
+        );
         return santasListMapper.toDto(santasList);
     }
 
+    /**
+     * This method is only for INTERNAL usage id does not validate user privilege to view Entity
+     *
+     * @param id
+     * @param listStatus
+     * @return
+     */
     public SantasListDTO updateStatus(UUID id, ListStatus listStatus) {
-        SantasList santasList = findSantasListById(id);
+        SantasList santasList = santasListRepository.findById(id).orElseThrow(() ->
+                new InvalidRequestException("Santa's list not found with ID: " + id)
+        );
 
         santasList.setStatus(listStatus);
         return santasListMapper.toDto(santasListRepository.save(santasList));

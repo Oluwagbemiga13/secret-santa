@@ -105,7 +105,7 @@ public class SantasListController {
     public ResponseEntity<SantasListDTO> getSantasListById(
             @Parameter(description = "UUID of the Santa's list to retrieve", required = true)
             @PathVariable UUID id) {
-        SantasListDTO santasList = santasListService.getSantasListById(id);
+        SantasListDTO santasList = santasListService.findById(id);
         return ResponseEntity.ok(santasList);
     }
 

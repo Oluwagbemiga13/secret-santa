@@ -1,4 +1,12 @@
 package cz.oluwagbemiga.santa.be.dto;
 
-public record AuthResponse(String token, String username) {
+import jakarta.validation.constraints.NotBlank;
+
+public record AuthResponse(
+        @NotBlank(message = "Token is required")
+        String token,
+
+        @NotBlank(message = "Username is required")
+        String username
+) {
 }

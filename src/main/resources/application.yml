@@ -22,6 +22,11 @@ spring:
             enable: false
           ssl:
             enable: true
+  # Validation configuration
+  mvc:
+    throw-exception-if-no-handler-found: true
+  validation:
+    fail-fast: false  # Set to true if you want validation to stop on first error
 
 jwt:
   secret: ${JWT_SECRET}

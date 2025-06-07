@@ -118,21 +118,21 @@ class SantasListServiceTest {
     }
 
     @Test
-    void testGetSantasListById() {
+    void testFindById() {
         when(santasListRepository.findById(santasList.getId())).thenReturn(Optional.of(santasList));
         when(santasListMapper.toDto(santasList)).thenReturn(santasListDTO);
 
-        SantasListDTO result = santasListService.getSantasListById(santasList.getId());
+        SantasListDTO result = santasListService.findById(santasList.getId());
 
         assertEquals(santasListDTO, result);
         verify(santasListRepository, times(1)).findById(santasList.getId());
     }
 
     @Test
-    void testGetSantasListById_NotFound() {
+    void testFindById_NotFound() {
         when(santasListRepository.findById(santasList.getId())).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> santasListService.getSantasListById(santasList.getId()));
+        assertThrows(ResourceNotFoundException.class, () -> santasListService.findById(santasList.getId()));
         verify(santasListRepository, times(1)).findById(santasList.getId());
     }
 
