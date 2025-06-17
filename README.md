@@ -2,8 +2,8 @@
 
 #### A Java Spring Boot application to automate your Secret Santa gift exchange – from participant invitation to anonymous gift assignment, all done via email!
 -  **Add participants by email**
--  Automatically sends email invitations with gift preference form
--  Once all participants submit their preferences, the app assigns gifters and emails gift details
+-  **Automatically sends email invitations with gift preference form**
+-  **Once all participants submit their preferences, the app assigns gifters and emails gift details**
 
 ---
 
@@ -166,12 +166,12 @@ mvn spring-boot:run -Dspring.profiles.active=dev
 | **SecretSantaApplication**              | 0% (0/1)           | 0% (0/1)            | 0% (0/1)            |
 
 
-*You can run the tests using Maven:*
+You can run the tests using Maven:
 ```bash
 mvn test
 ```
-Unfortunately, the coverage report is not generated automatically, since I prefer using integrated IDE tools for coverage analysis.  
-I plan to include Jacoco plugin directly in the project in the future, so that the report can be generated automatically when pull request is created.
+*Unfortunately, the coverage report is not generated automatically, since I prefer using integrated IDE tools for coverage analysis.  
+I plan to include Jacoco plugin directly in the project in the future, so that the report can be generated automatically when pull request is created.*
 
 ---
 
@@ -303,7 +303,6 @@ When the organizer submits a new Santa’s list, the backend:
 - Generates a unique gift-selection link for each address
 - Sends out invitation emails 
 
-This decoupling (controller → service → repository → email) keeps each component focused on a single responsibility, making it easy to test and scale.
 ```mermaid
 ---
 title:  List Creation & Invitation
@@ -323,6 +322,8 @@ sequenceDiagram
     ListSvc->>EmailSvc: Send invite emails with gift link
     EmailSvc-->>Participants: Email with unique links
 ```
+*This decoupling (controller → service → repository → email) keeps each component focused on a single responsibility, making it easy to test and scale.*
+
 ### 2. Gift Selection by Participants
 Each invitee clicks their personalized link and submits gift preferences. Behind the scenes:
 
@@ -358,7 +359,6 @@ Once everyone’s selections are in:
 - It runs a **shuffle** algorithm from `java.util.Collections.` to pair gift-givers with recipients
 - Assignments are written back to the database
 
-*By isolating “shuffle & assign” in its own service method, I can swap in a more sophisticated matching algorithm later without touching the rest of the code. E.q excluding some participants from being assigned to each other.*
 ```mermaid
 ---
 title: Shuffling and Assignment
@@ -375,15 +375,13 @@ sequenceDiagram
         ListSvc->>PersonRepo: Update assignments in DB
     end
 ```
+*By isolating “shuffle & assign” in its own service method, I can swap in a more sophisticated matching algorithm later without touching the rest of the code. E.q excluding some participants from being assigned to each other.*
 ### 4. Sending Assignment Emails
 Finally, `ElfService` sends out assignment emails to each participant:
 
 - Retrieves the new gifter → recipient map
 - Iterates through each`Person` and `Gift` and builds custom email content.
 - Sends each participant an email with their recipient’s details
-
-*Batching these sends and using the same EmailService interface used during invitation guarantees consistent formatting and retry logic across the entire flow.*
-
 
 ```mermaid
 ---
@@ -400,6 +398,8 @@ sequenceDiagram
     EmailSvc-->>Participants: Email with recipient and gift details
 
 ```
+*Batching these sends and using the same EmailService interface used during invitation guarantees consistent formatting and retry logic across the entire flow.*
+
 ---
 
 ## 🏗️ Contributing
