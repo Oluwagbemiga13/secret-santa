@@ -2,6 +2,7 @@
 
 #### A Java Spring Boot application to automate your Secret Santa gift exchange – from participant invitation to anonymous gift assignment, all done via email!
 
+
 ---
 
 ## ✨ Features
@@ -30,6 +31,7 @@
 - JUnit 5 + Mockito
 - OpenAPI (Springdoc)
 - Docker & Docker Compose
+- JUnit + Mockito
 
 ---
 
@@ -199,6 +201,7 @@ Security -- "On success" --> Services
 Services -- Data Access --> Repo
 Repo -- CRUD --> DB
 Services -- Notify --> Email
+
 
 %% Show some typical public endpoints for clarity
 classDef pub fill:#E1F5FE,stroke:#0288D1,color:#01579B
