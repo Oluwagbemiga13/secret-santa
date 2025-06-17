@@ -1,6 +1,9 @@
 # 🎅 Secret Santa App
 
 #### A Java Spring Boot application to automate your Secret Santa gift exchange – from participant invitation to anonymous gift assignment, all done via email!
+-  **Add participants by email**
+-  Automatically sends email invitations with gift preference form
+-  Once all participants submit their preferences, the app assigns gifters and emails gift details
 
 ---
 
@@ -8,13 +11,10 @@
 
 - ✅ Account creation & secure login with JWT
 - 🔒 Password reset functionality
-- 👥 Add participants by email
-- 📬 Automatically sends email invitations with gift preference form
-- 🎁 Once all participants submit their preferences, the app assigns gifters and emails gift details
-- 🔐 Secure authentication via Spring Security + JWT
-- 📦 REST API documented via OpenAPI (Swagger)
-- 📈 Well tested with JUnit 5 and Mockito (91% line coverage)
-- 📨 Email delivery via Seznam.cz SMTP
+- 🔐 Secure authentication 
+- 📦 REST API documented 
+- 📈 Well tested (91% line coverage)
+- 📨 Email delivery via SMTP
 - 💡 Clean architecture using Lombok and MapStruct
 
 ---
@@ -24,19 +24,20 @@
 - Java 17
 - Spring Boot 3.4.4
 - PostgreSQL
-- Spring Security + JWT 
+- Spring Security + JWT
 - Spring Mail (Seznam.cz SMTP)
 - MapStruct + Lombok
 - JUnit 5 + Mockito
 - OpenAPI (Springdoc)
 - Jakarta Validation
 - Docker & Docker Compose
+- JavaScript, HTML, CSS (for frontend)
 
 ---
 
-## 🚀 Quick Start
+# 🚀 Quick Start
 
-### 🔧 Requirements
+##  Requirements
 - Docker & Docker Compose installed
 - Java 17 and Maven (for local builds)
 
@@ -101,7 +102,7 @@ Place these in your `.env` file in the project root.
 docker-compose up --build
 ```
 
-- `Docker-compose.yml` actually mounts local maven repository, so after initial build, subsequent builds will be faster.  
+- `Docker-compose.yml` actually mounts local maven repository, so after initial build, subsequent builds will be faster.
 
 #### 3. Access the application
 Once the application is running, you can access it at:
@@ -140,9 +141,9 @@ mvn spring-boot:run -Dspring.profiles.active=dev
 
 ---
 
-## ✅Test Coverage
+# ✅Test Coverage
 
-### Coverage Insights
+## Coverage Insights
 
 - The application demonstrates robust overall coverage, with 97% of classes, 90% of methods and 91% of lines exercised by tests.
 - Core modules—**config**, **entity**, **exception**, **mapper** and **service**—achieve near–100% coverage, reflecting comprehensive validation of the business logic.
@@ -170,13 +171,26 @@ mvn spring-boot:run -Dspring.profiles.active=dev
 mvn test
 ```
 Unfortunately, the coverage report is not generated automatically, since I prefer using integrated IDE tools for coverage analysis.  
-I plan to include Jacoco plugin directly in the project in the future, so that the report can be generated automatically when pull request is created.  
+I plan to include Jacoco plugin directly in the project in the future, so that the report can be generated automatically when pull request is created.
 
 ---
 
-## 🗺️ Architecture & Data Flow
+# 🛡️ Using the Validator Bean
 
-### 1. High-Level Component Diagram
+The Secret Santa App leverages Spring's built-in validation for robust data integrity. The `Validator` bean (from `jakarta.validation.Validator`)
+
+- Fields in DTOs are annotated with validation constraints (e.g., `@NotNull`, `@Email`, `@Size`, etc.).
+- The Validator bean is injected where manual validation is needed (e.g., in services for custom flows).
+
+#### This:
+- Ensures data received from API clients adheres to business rules.
+- Prevents invalid or incomplete data from being persisted.
+- Offers consistent and reusable validation logic across the application.
+---
+
+# 🗺️ Architecture & Data Flow
+
+## High-Level Component Diagram
 
 Clear separation of concerns is enforced by splitting the app into:
 - Frontend (UI layer)
@@ -235,11 +249,11 @@ API -.-> SecEndpoints
 ```
 ---
 
-### 2. Data Flow Sequence for Password Reset
-#### Privacy & Security:  
+## Data Flow Sequence for Password Reset
+#### Privacy & Security:
 I always return “200 OK” to avoid revealing whether an email exists (prevents user enumeration).
 
-#### Single-responsibility: 
+#### Single-responsibility:
 Token creation, persistence, and email sending are handled in the service layer, decoupling concerns and simplifying tests.
 ```mermaid
 ---
@@ -275,7 +289,7 @@ sequenceDiagram
 ---
 ## End-to-End Workflow Sequence
 
-This sequence shows how the Secret Santa App guides an organizer and the participants through the entire gift-exchange process—from creating a list of invitees all the way through to delivering each person’s recipient assignment. It’s designed to ensure
+This sequence shows how the Secret Santa App guides an organizer and the participants through the entire gift-exchange process. From creating a list of invitees all the way through to delivering each person’s recipient assignment. It’s designed to ensure:
 
 - Simplicity for the organizer (one form to fill out)
 - Security (JWT-protected APIs, tokenized password resets, no user enumeration)
@@ -285,9 +299,9 @@ This sequence shows how the Secret Santa App guides an organizer and the partici
 ### 1. List Creation & Invitation
 When the organizer submits a new Santa’s list, the backend:
 
-- Persists the list and participant emails in the database
+- Persists the list and participant emails in the database as `Person` entities
 - Generates a unique gift-selection link for each address
-- Sends out invitation emails in parallel
+- Sends out invitation emails 
 
 This decoupling (controller → service → repository → email) keeps each component focused on a single responsibility, making it easy to test and scale.
 ```mermaid
@@ -312,9 +326,9 @@ sequenceDiagram
 ### 2. Gift Selection by Participants
 Each invitee clicks their personalized link and submits gift preferences. Behind the scenes:
 
-- The front end posts preferences to the GiftController 
-- GiftService validates and saves the choice in GiftRepository
-- A confirmation response is returned
+- The front end posts preferences to the GiftController
+- GiftService validates `GiftDTO`, changes `ListStatus` to `SELECTED` and saves `Gift` entity
+- A confirmation response is returned to ensure the participant knows their selection was recorded.
 
 ```mermaid
 ---
@@ -338,17 +352,19 @@ sequenceDiagram
 ### 3. Shuffling and Assignment
 Once everyone’s selections are in:
 
-- The list service fetches all participants and their preferences
-- It runs a shuffle algorithm to pair gift-givers with recipients
+- Periodically, the `ElfService` checks if all participants have submitted their preferences.
+- If conditions are met, it triggers the shuffle and assignment process.
+- `ElfService` service fetches all participants and their preferences
+- It runs a **shuffle** algorithm from `java.util.Collections.` to pair gift-givers with recipients
 - Assignments are written back to the database
 
-By isolating “shuffle & assign” in its own service method, I can swap in a more sophisticated matching algorithm later without touching the rest of the code. E.q excluding some participants from being assigned to each other.
+*By isolating “shuffle & assign” in its own service method, I can swap in a more sophisticated matching algorithm later without touching the rest of the code. E.q excluding some participants from being assigned to each other.*
 ```mermaid
 ---
 title: Shuffling and Assignment
 ---
 sequenceDiagram
-    participant ListSvc as SantasListService
+    participant ListSvc as ElfService
     participant PersonRepo as PersonRepository
     participant GiftRepo as GiftRepository
 
@@ -360,12 +376,14 @@ sequenceDiagram
     end
 ```
 ### 4. Sending Assignment Emails
-Finally, the service:
+Finally, `ElfService` sends out assignment emails to each participant:
 
 - Retrieves the new gifter → recipient map
+- Iterates through each`Person` and `Gift` and builds custom email content.
 - Sends each participant an email with their recipient’s details
 
-Batching these sends and using the same EmailService interface used during invitation guarantees consistent formatting and retry logic across the entire flow.
+*Batching these sends and using the same EmailService interface used during invitation guarantees consistent formatting and retry logic across the entire flow.*
+
 
 ```mermaid
 ---
@@ -373,27 +391,15 @@ title: Sending Assignment Emails
 ---
 
 sequenceDiagram
-    participant ListSvc as SantasListService
+    participant ListSvc as ElfService
     participant EmailSvc as Email Service
     participant PersonRepo as PersonRepository
 
-    ListSvc->>PersonRepo: Fetch assignments (gifter→recipient)
+    ListSvc->>PersonRepo: Fetch assignments (gifter → recipient)
     ListSvc->>EmailSvc: For each participant, send assignment email
     EmailSvc-->>Participants: Email with recipient and gift details
 
 ```
----
-## 🛡️ Using the Validator Bean
-
-The Secret Santa App leverages Spring's built-in validation for robust data integrity. The `Validator` bean (from `jakarta.validation.Validator`)
-
-- Fields in DTOs are annotated with validation constraints (e.g., `@NotNull`, `@Email`, `@Size`, etc.).
-- The Validator bean is injected where manual validation is needed (e.g., in services for custom flows).
-
-#### This:
-- Ensures data received from API clients adheres to business rules.
-- Prevents invalid or incomplete data from being persisted.
-- Offers consistent and reusable validation logic across the application.
 ---
 
 ## 🏗️ Contributing
@@ -407,18 +413,11 @@ Unfortunately, I am not accepting contributions at the moment. Feel free to fork
 #### Q: Why am I not receiving emails from the app?
 - **A:** Check your SMTP configuration in `.env`. Ensure `EMAIL_ENABLED=true` and that your credentials are correct. Some providers may block automated emails or require app passwords.
 
-#### Q: Can I use a different SMTP server?
-- **A:** Yes! You can configure any SMTP provider by adjusting the `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, and `MAIL_PASSWORD` variables in your `.env` file.
-
-#### Q: How do I reset my password?
-- **A:** Use the password reset feature via the login page. You cannot reset the password directly in the database.
-
 #### Q: How do I add more participants after creating a list?
 - **A:** Currently, lists are immutable after creation to ensure fairness. Create a new list to include additional participants.
 
-#### Q: Can I deploy this app to a cloud provider?
-- **A:** Yes, the app is containerized and compatible with most cloud platforms supporting Docker.
-
+#### Q: Why is there an `Admin` role in the app?
+- **A:** The `Admin` role is reserved for adding affiliate link to `Gift` entity.
 --- 
 
 ## 🚨 Reporting Issues
@@ -427,7 +426,6 @@ If you find a bug or have a feature request, please [open an issue](../../issues
 
 Thank you for helping improve this project!
 
----
 
 ---
 ## 🙋‍♂️ Support
@@ -435,7 +433,7 @@ Thank you for helping improve this project!
 If you encounter issues or have questions:
 
 - **Open an issue** in this repository with details about your problem or suggestion.
-- You may contact the maintainer via LinkedIn -> [Daniel Rakovsky](www.linkedin.com/in/daniel-rakovsky-96ba74317).
+- You may contact the maintainer via  [LinkedIn](www.linkedin.com/in/daniel-rakovsky-96ba74317).
 
 
 ## 📄 License
