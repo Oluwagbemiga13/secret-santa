@@ -235,6 +235,8 @@ class EmailServiceTest {
         when(santasListService.findById(listId)).thenReturn(santasListDTO);
         when(giftService.createGift(anyInt(), any())).thenReturn(giftDTO);
         when(giftMapper.toEntity(giftDTO)).thenReturn(gift);
+        when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(personDTO.id());
+
         doNothing().when(personService).assignPersonGift(any(), any());
 
         emailServiceUnderTest.sendRequest(listId);
@@ -256,6 +258,7 @@ class EmailServiceTest {
         when(santasListService.findById(listId)).thenReturn(santasListDTO);
         when(giftService.createGift(anyInt(), any())).thenReturn(giftDTO);
         when(giftMapper.toEntity(giftDTO)).thenReturn(gift);
+        when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(personDTO.id());
         doNothing().when(personService).assignPersonGift(any(), any());
         doThrow(new MessagingException("Failed to send email"))
                 .when(emailService).sendEmail(anyString(), anyString(), anyString());

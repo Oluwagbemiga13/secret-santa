@@ -11,7 +11,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 @Slf4j
-public class GiftMapperTest extends AbstractMapperTest<Gift, GiftDTO> {
+class GiftMapperTest extends AbstractMapperTest<Gift, GiftDTO> {
 
     @Override
     protected GenericMapper<Gift, GiftDTO> mapper() {

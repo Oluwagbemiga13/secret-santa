@@ -14,8 +14,6 @@ import java.util.UUID;
 @Import(EmailMockConfig.class)
 class UserMapperTest extends AbstractMapperTest<User, UserDTO> {
 
-    private UUID userId = UUID.randomUUID();
-
     @Autowired
     private UserMapper userMapper;
 

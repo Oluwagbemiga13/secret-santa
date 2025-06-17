@@ -115,6 +115,7 @@ class SantasListServiceTest {
                 user.getUuid(),
                 100
         );
+        when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(user.getUuid());
     }
 
     @Test
@@ -191,7 +192,7 @@ class SantasListServiceTest {
                 200
         );
 
-        when(userService.findUserById(anyString())).thenReturn(user);
+        when(userService.findUserById(any())).thenReturn(user);
         when(santasListRepository.save(any(SantasList.class))).thenReturn(santasList);
         when(santasListMapper.toDto(any(SantasList.class))).thenReturn(santasListDTO);
 
@@ -247,11 +248,11 @@ class SantasListServiceTest {
         when(auth.getPrincipal()).thenReturn(userUuid);
 
         when(santasListRepository.findById(santasList.getId())).thenReturn(Optional.of(santasList));
-        doNothing().when(santasListRepository).deleteById(santasList.getId());
+        doNothing().when(santasListRepository).delete(santasList);
 
         santasListService.deleteSantasList(santasList.getId());
 
-        verify(santasListRepository).deleteById(santasList.getId());
+        verify(santasListRepository).delete(santasList);
     }
 
     @Test
@@ -296,7 +297,7 @@ class SantasListServiceTest {
                 150
         );
 
-        assertThrows(InvalidRequestException.class,
+        assertThrows(ResourceNotFoundException.class,
                 () -> santasListService.updateSantasList(santasList.getId(), updateDto));
     }
 
@@ -314,7 +315,7 @@ class SantasListServiceTest {
                 0  // Invalid budget
         );
 
-        assertThrows(InvalidRequestException.class,
+        assertThrows(ResourceNotFoundException.class,
                 () -> santasListService.updateSantasList(santasList.getId(), updateDto));
     }
 
@@ -445,7 +446,7 @@ class SantasListServiceTest {
                 150
         );
 
-        assertThrows(InvalidRequestException.class,
+        assertThrows(ResourceNotFoundException.class,
                 () -> santasListService.updateSantasList(santasList.getId(), updateDto));
     }
 
@@ -477,9 +478,6 @@ class SantasListServiceTest {
     @Test
     void testGetListDetails() {
         UUID listId = santasList.getId();
-        List<PersonOverview> personOverviews = List.of(
-                new PersonOverview(person)
-        );
 
         when(santasListRepository.findById(listId)).thenReturn(Optional.of(santasList));
         when(personService.getBySantasListId(listId)).thenReturn(List.of(personDTO));

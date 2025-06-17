@@ -22,19 +22,18 @@ public abstract class AbstractMapperTest<E, D> {
 
     protected abstract D dtoInstance();
 
-
     protected void test() {
         D actualDto = mapper().toDto(entityInstance());
         assertDtoEquals(dtoInstance(), actualDto);
 
-        D actualDto_1 = mapper().toDto(List.of(entityInstance())).get(0);
-        assertDtoEquals(dtoInstance(), actualDto_1);
+        D actualDtoFromList = mapper().toDto(List.of(entityInstance())).get(0);
+        assertDtoEquals(dtoInstance(), actualDtoFromList);
 
         E actualEntity = mapper().toEntity(dtoInstance());
         assertEntityEquals(entityInstance(), actualEntity);
 
-        E actualEntity_1 = mapper().toEntity(List.of(dtoInstance())).get(0);
-        assertEntityEquals(entityInstance(), actualEntity_1);
+        E actualEntityFromList = mapper().toEntity(List.of(dtoInstance())).get(0);
+        assertEntityEquals(entityInstance(), actualEntityFromList);
     }
 
     protected void assertDtoEquals(D expected, D actual) {

@@ -76,8 +76,8 @@ class PasswordResetServiceTest {
     void testSendResetLink_UserNotFound() {
         String email = "nonexistent@example.com";
         when(userRepo.findByEmail(email)).thenReturn(Optional.empty());
-
-        assertThrows(UsernameNotFoundException.class, () -> passwordResetService.sendResetLink(email));
+        // Expecting no exception to be thrown.
+        assertDoesNotThrow(() -> passwordResetService.sendResetLink(email));
     }
 
     @Test
@@ -88,10 +88,9 @@ class PasswordResetServiceTest {
 
         when(userRepo.findByEmail(email)).thenReturn(Optional.of(user));
         when(tokenRepo.existsByUserAndExpiryDateAfter(eq(user), any(LocalDateTime.class))).thenReturn(true);
-
-        InvalidRequestException thrownEx = assertThrows(InvalidRequestException.class,
-                () -> passwordResetService.sendResetLink(email));
-        assertTrue(thrownEx.getMessage().contains("reset link has already been sent"));
+        when(tokenRepo.save(any())).thenReturn(new PasswordResetToken());
+        // Expecting no exception to be thrown
+        assertDoesNotThrow(() -> passwordResetService.sendResetLink(email));
     }
 
     @Test

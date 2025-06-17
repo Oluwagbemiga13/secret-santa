@@ -4,7 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
@@ -13,13 +13,14 @@ import java.util.Date;
 import java.util.UUID;
 
 @Component
+@RequiredArgsConstructor
 public class JwtUtil {
 
-    @Value("${jwt.secret}")
-    private String jwtSecret;
 
-    @Value("${jwt.expirationMs}")
-    private int jwtExpirationMs;
+    private final String jwtSecret;
+
+
+    private final int jwtExpirationMs;
 
     public String generateToken(UUID id, GrantedAuthority authority) {
         Date now = new Date();

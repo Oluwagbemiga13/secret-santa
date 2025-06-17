@@ -15,7 +15,7 @@ import java.util.UUID;
 
 @SpringBootTest
 @Import(EmailMockConfig.class)
-public class PersonMapperTest extends AbstractMapperTest<Person, PersonDTO> {
+class PersonMapperTest extends AbstractMapperTest<Person, PersonDTO> {
 
     @Autowired
     private PersonMapper personMapper;
@@ -28,7 +28,7 @@ public class PersonMapperTest extends AbstractMapperTest<Person, PersonDTO> {
     }
 
     @BeforeEach
-    protected void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
