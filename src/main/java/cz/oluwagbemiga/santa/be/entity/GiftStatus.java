@@ -19,6 +19,10 @@ public enum GiftStatus {
         return this.name().replace('_', ' ');
     }
 
+    public boolean isEligableForShuffle() {
+        return this == SELECTED || this == LINKED;
+    }
+
 }
 
 
