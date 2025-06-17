@@ -2,7 +2,6 @@
 
 #### A Java Spring Boot application to automate your Secret Santa gift exchange – from participant invitation to anonymous gift assignment, all done via email!
 
-
 ---
 
 ## ✨ Features
@@ -30,8 +29,8 @@
 - MapStruct + Lombok
 - JUnit 5 + Mockito
 - OpenAPI (Springdoc)
+- Jakarta Validation
 - Docker & Docker Compose
-- JUnit + Mockito
 
 ---
 
@@ -72,7 +71,28 @@ RESET_TOKEN_EXP_MIN=15
 #SECURITY
 CORS_ALLOWED_ORIGINS=http://127.0.0.1:5500;http://127.0.0.1:5501
 ```
-Make sure to replace the placeholders with $ sign with your actual values.
+Make sure to replace the placeholders with `$` sign with your actual values.
+
+#### Environment Variables Reference
+
+| Variable               | Description                                 | Example/Default                            |
+|------------------------|---------------------------------------------|--------------------------------------------|
+| DB_URL                 | JDBC URL for SQL database                   | jdbc:postgresql://db:5432/postgres         |
+| POSTGRES_USER          | Database username                           | postgres                                   |
+| POSTGRES_PASSWORD      | Database password                           | secret                                     |
+| JWT_SECRET             | Secret key for JWT signing                  | (long random string)                       |
+| JWT_EXPIRATION         | JWT expiration in ms                        | 3600000                                    |
+| MAIL_HOST              | SMTP server host                            | smtp.seznam.cz                             |
+| MAIL_PORT              | SMTP server port                            | 465                                        |
+| MAIL_USERNAME          | SMTP username/email                         | you@seznam.cz                              |
+| MAIL_PASSWORD          | SMTP password                               | emailpassword                              |
+| FE_BASE_URL            | Frontend application base URL               | http://127.0.0.1:5501                      |
+| CHECK_INTERVAL         | Check interval for Lists eligible for sending (ms) | 360000                                     |
+| EMAIL_ENABLED          | Enable/disable email sending                | false                                      |
+| RESET_TOKEN_EXP_MIN    | Password reset token expiration (minutes)   | 15                                         |
+| CORS_ALLOWED_ORIGINS   | Allowed CORS origins (semicolon-separated)  | http://127.0.0.1:5500;http://127.0.0.1:5501 |
+
+Place these in your `.env` file in the project root.
 
 
 #### 2. Start the application
@@ -81,8 +101,7 @@ Make sure to replace the placeholders with $ sign with your actual values.
 docker-compose up --build
 ```
 
-- `Docker-compose.yml` actually mounts local maven repository, so after initial build, subsequent builds will be faster.
-- 
+- `Docker-compose.yml` actually mounts local maven repository, so after initial build, subsequent builds will be faster.  
 
 #### 3. Access the application
 Once the application is running, you can access it at:
@@ -126,9 +145,9 @@ mvn spring-boot:run -Dspring.profiles.active=dev
 ### Coverage Insights
 
 - The application demonstrates robust overall coverage, with 97% of classes, 90% of methods and 91% of lines exercised by tests.
-- The **controller** (70% methods/lines) and **DTO** (77% lines) layers present the largest gaps; enhancing endpoint and mapping tests in these modules is advised.
-- The `SecretSantaApplication` entry point is currently untested (0%); adding a startup or integration test will immediately improve the coverage metrics.
 - Core modules—**config**, **entity**, **exception**, **mapper** and **service**—achieve near–100% coverage, reflecting comprehensive validation of the business logic.
+- The **controller** (70% methods/lines) and **DTO** (77% lines) layers present the largest gaps; enhancing endpoint and mapping tests in these modules is necessary if ever want to deploy to **PROD**.
+- The `SecretSantaApplication` entry point is currently untested (0%); adding a startup or integration test will immediately improve the coverage metrics.
 
 
 | Module                                  | Classes            | Methods             | Lines               |
@@ -146,7 +165,7 @@ mvn spring-boot:run -Dspring.profiles.active=dev
 | **SecretSantaApplication**              | 0% (0/1)           | 0% (0/1)            | 0% (0/1)            |
 
 
-You can run the tests using Maven:
+*You can run the tests using Maven:*
 ```bash
 mvn test
 ```
@@ -154,9 +173,6 @@ Unfortunately, the coverage report is not generated automatically, since I prefe
 I plan to include Jacoco plugin directly in the project in the future, so that the report can be generated automatically when pull request is created.  
 
 ---
-
-## 📄 License
-This project is licensed under the MIT License. So feel free to use, modify, and distribute it as you wish!  
 
 ## 🗺️ Architecture & Data Flow
 
@@ -201,7 +217,6 @@ Security -- "On success" --> Services
 Services -- Data Access --> Repo
 Repo -- CRUD --> DB
 Services -- Notify --> Email
-
 
 %% Show some typical public endpoints for clarity
 classDef pub fill:#E1F5FE,stroke:#0288D1,color:#01579B
@@ -367,4 +382,61 @@ sequenceDiagram
     EmailSvc-->>Participants: Email with recipient and gift details
 
 ```
+---
+## 🛡️ Using the Validator Bean
 
+The Secret Santa App leverages Spring's built-in validation for robust data integrity. The `Validator` bean (from `jakarta.validation.Validator`)
+
+- Fields in DTOs are annotated with validation constraints (e.g., `@NotNull`, `@Email`, `@Size`, etc.).
+- The Validator bean is injected where manual validation is needed (e.g., in services for custom flows).
+
+#### This:
+- Ensures data received from API clients adheres to business rules.
+- Prevents invalid or incomplete data from being persisted.
+- Offers consistent and reusable validation logic across the application.
+---
+
+## 🏗️ Contributing
+
+Unfortunately, I am not accepting contributions at the moment. Feel free to fork the repository and use it for your own purposes. If you have any suggestions or improvements, please let me know by opening an issue.
+
+---
+
+## ❓ FAQ
+
+#### Q: Why am I not receiving emails from the app?
+- **A:** Check your SMTP configuration in `.env`. Ensure `EMAIL_ENABLED=true` and that your credentials are correct. Some providers may block automated emails or require app passwords.
+
+#### Q: Can I use a different SMTP server?
+- **A:** Yes! You can configure any SMTP provider by adjusting the `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, and `MAIL_PASSWORD` variables in your `.env` file.
+
+#### Q: How do I reset my password?
+- **A:** Use the password reset feature via the login page. You cannot reset the password directly in the database.
+
+#### Q: How do I add more participants after creating a list?
+- **A:** Currently, lists are immutable after creation to ensure fairness. Create a new list to include additional participants.
+
+#### Q: Can I deploy this app to a cloud provider?
+- **A:** Yes, the app is containerized and compatible with most cloud platforms supporting Docker.
+
+--- 
+
+## 🚨 Reporting Issues
+
+If you find a bug or have a feature request, please [open an issue](../../issues) and provide as much detail as possible.
+
+Thank you for helping improve this project!
+
+---
+
+---
+## 🙋‍♂️ Support
+
+If you encounter issues or have questions:
+
+- **Open an issue** in this repository with details about your problem or suggestion.
+- You may contact the maintainer via LinkedIn -> [Daniel Rakovsky](www.linkedin.com/in/daniel-rakovsky-96ba74317).
+
+
+## 📄 License
+This project is licensed under the MIT License. So feel free to use, modify, and distribute it as you wish!  
