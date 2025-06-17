@@ -1,5 +1,6 @@
 package cz.oluwagbemiga.santa.be.service;
 
+import cz.oluwagbemiga.santa.be.entity.GiftStatus;
 import cz.oluwagbemiga.santa.be.entity.ListStatus;
 import cz.oluwagbemiga.santa.be.entity.Person;
 import cz.oluwagbemiga.santa.be.entity.SantasList;
@@ -19,8 +20,6 @@ import java.util.stream.IntStream;
 public class ElfService {
 
     private final SantasListRepository santasListRepository;
-
-    private final GiftService giftService;
 
     private final SantasListService santasListService;
 
@@ -59,12 +58,13 @@ public class ElfService {
     /**
      * This method checks if all persons in the SantasList have selected a gift.
      *
-     * @param santasList
+     * @param santasList The SantasList object containing the list of persons to check.
      * @return true when all has selected
      */
     public boolean isEligableForShuffle(SantasList santasList) {
         return santasList.getPersons().stream()
-                .allMatch(Person::isHasSelectedGift);
+                .map(e -> e.getDesiredGift().getStatus())
+                .allMatch(GiftStatus::isEligableForShuffle);
     }
 
     /**

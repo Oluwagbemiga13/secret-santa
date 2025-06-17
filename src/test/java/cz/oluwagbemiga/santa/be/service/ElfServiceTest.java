@@ -1,8 +1,6 @@
 package cz.oluwagbemiga.santa.be.service;
 
-import cz.oluwagbemiga.santa.be.entity.ListStatus;
-import cz.oluwagbemiga.santa.be.entity.Person;
-import cz.oluwagbemiga.santa.be.entity.SantasList;
+import cz.oluwagbemiga.santa.be.entity.*;
 import cz.oluwagbemiga.santa.be.repository.SantasListRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,6 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,10 +42,20 @@ class ElfServiceTest {
 
         UUID listId = UUID.randomUUID();
         UUID personId = UUID.randomUUID();
+        Gift gift = Gift.builder()
+                .id(UUID.randomUUID())
+                .name("Test Gift")
+                .description("A test gift for unit testing")
+                .affiliateLink("http://example.com/test-gift")
+                .budget(100)
+                .status(GiftStatus.SELECTED)
+                .expirationDate(LocalDate.now().plusDays(30))
+                .build();
 
         person = Person.builder()
                 .id(personId)
                 .name("John Doe")
+                .desiredGift(gift)
                 .hasSelectedGift(true)
                 .build();
 
