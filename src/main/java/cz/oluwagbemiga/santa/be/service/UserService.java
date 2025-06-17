@@ -5,8 +5,8 @@ import cz.oluwagbemiga.santa.be.dto.UserDTO;
 import cz.oluwagbemiga.santa.be.dto.UserInfo;
 import cz.oluwagbemiga.santa.be.entity.User;
 import cz.oluwagbemiga.santa.be.exception.ResourceNotFoundException;
+import cz.oluwagbemiga.santa.be.exception.UnauthorizedAccessException;
 import cz.oluwagbemiga.santa.be.exception.UserRegistrationException;
-import cz.oluwagbemiga.santa.be.mapper.UserMapper;
 import cz.oluwagbemiga.santa.be.repository.UserRepository;
 import cz.oluwagbemiga.santa.be.security.JwtUtil;
 import jakarta.transaction.Transactional;
@@ -48,7 +48,6 @@ public class UserService {
             return new AuthResponse(token, savedUser.getUsername());
 
         } catch (Exception e) {
-            logger.error("Failed to register user: {}", userDTO.username(), e);
             throw new UserRegistrationException("Registration failed: " + e.getMessage());
         }
     }
@@ -67,15 +66,14 @@ public class UserService {
     public void deleteUser(UUID uuid) {
         UUID userId = UUID.fromString(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
         if (!userId.equals(uuid)) {
-            throw new IllegalArgumentException("You can only delete your own account");
+            throw new UnauthorizedAccessException("You can only delete your own account");
         }
         userRepository.deleteById(uuid);
     }
 
-    public User findUserById(String userUuidStr) {
-        UUID userUuid = UUID.fromString(userUuidStr);
+    public User findUserById(UUID userUuid) {
         return userRepository.findById(userUuid)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with UUID: " + userUuidStr));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with UUID: " + userUuid));
     }
 
     public UserInfo getInfoById() {

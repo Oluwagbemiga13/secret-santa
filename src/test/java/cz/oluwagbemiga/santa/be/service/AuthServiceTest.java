@@ -61,13 +61,13 @@ class AuthServiceTest {
     void authenticateAdmin_Success() {
         when(userRepository.findByUsername("admin")).thenReturn(Optional.of(adminUser));
         when(passwordEncoder.matches(TEST_PASSWORD, adminUser.getPassword())).thenReturn(true);
-        String TEST_TOKEN = "test.jwt.token";
-        when(jwtUtil.generateToken(any(UUID.class), any())).thenReturn(TEST_TOKEN);
+        String testToken = "test.jwt.token";
+        when(jwtUtil.generateToken(any(UUID.class), any())).thenReturn(testToken);
 
         AuthResponse response = authService.authenticateAdmin("admin", TEST_PASSWORD);
 
         assertNotNull(response);
-        assertEquals(TEST_TOKEN, response.token());
+        assertEquals(testToken, response.token());
         assertEquals("admin", response.username());
     }
 
@@ -102,15 +102,15 @@ class AuthServiceTest {
         log.info("Testing successful authentication for user: {}", TEST_USERNAME);
         when(userRepository.findByUsername(TEST_USERNAME)).thenReturn(Optional.of(testUser));
         when(passwordEncoder.matches(TEST_PASSWORD, testUser.getPassword())).thenReturn(true);
-        String TEST_TOKEN = "test.jwt.token";
-        when(jwtUtil.generateToken(any(UUID.class), any())).thenReturn(TEST_TOKEN);
+        String testToken = "test.jwt.token";
+        when(jwtUtil.generateToken(any(UUID.class), any())).thenReturn(testToken);
 
         AuthResponse response = authService.authenticate(TEST_USERNAME, TEST_PASSWORD);
 
         log.info("Authentication successful, token generated");
         log.debug("Generated token: {}", response.token());
         assertNotNull(response);
-        assertEquals(TEST_TOKEN, response.token());
+        assertEquals(testToken, response.token());
         assertEquals(TEST_USERNAME, response.username());
     }
 

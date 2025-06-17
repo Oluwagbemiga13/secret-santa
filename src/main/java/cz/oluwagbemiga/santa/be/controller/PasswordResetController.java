@@ -38,7 +38,7 @@ public class PasswordResetController {
             }
     )
     @PostMapping("/forgot-password")
-    public ResponseEntity<?> forgotPassword(
+    public ResponseEntity<String> forgotPassword(
             @Parameter(description = "Email address to send password reset link", required = true, example = "user@example.com")
             @RequestParam String email) {
         if (!EmailService.isValidEmail(email)) return ResponseEntity.status(400).body("Email in wrong format.");
@@ -67,7 +67,7 @@ public class PasswordResetController {
             }
     )
     @PostMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(
+    public ResponseEntity<String> resetPassword(
             @Parameter(description = "Reset password request containing token and new password", required = true)
             @RequestBody ResetPasswordRequest request) {
         resetService.resetPassword(request.token(), request.newPassword());

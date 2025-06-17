@@ -18,11 +18,8 @@ class JwtUtilTest {
     @BeforeEach
     void setUp() {
         log.info("Setting up JwtUtil test instance");
-        jwtUtil = new JwtUtil();
-        String TEST_SECRET = "testSecretKeyThatIsLongEnoughForHS256Algorithm";
-        ReflectionTestUtils.setField(jwtUtil, "jwtSecret", TEST_SECRET);
-        int TEST_EXPIRATION = 3600000;
-        ReflectionTestUtils.setField(jwtUtil, "jwtExpirationMs", TEST_EXPIRATION);
+        jwtUtil = new JwtUtil("testSecretKeyThatIsLongEnoughForHS256Algorithm",
+                3600000);
     }
 
     @Test

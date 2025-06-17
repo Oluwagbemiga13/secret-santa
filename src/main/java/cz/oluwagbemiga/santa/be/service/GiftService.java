@@ -10,6 +10,7 @@ import cz.oluwagbemiga.santa.be.repository.GiftRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -18,6 +19,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class GiftService {
 
+    public static final String NOT_FOUND_WITH_ID = "Gift not found with ID: {0}";
     private final GiftRepository giftRepository;
     private final GiftMapper giftMapper;
     private final PersonService personService;
@@ -29,7 +31,7 @@ public class GiftService {
 
     public GiftDTO getGiftById(UUID id) {
         Gift gift = giftRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Gift not found with ID: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(MessageFormat.format(NOT_FOUND_WITH_ID, id)));
         return giftMapper.toDto(gift);
     }
 
@@ -52,14 +54,14 @@ public class GiftService {
 
     public void updateStatus(UUID giftId, GiftStatus status) {
         Gift gift = giftRepository.findById(giftId).orElseThrow(
-                () -> new InvalidRequestException("Gift not found with ID: " + giftId));
+                () -> new InvalidRequestException(MessageFormat.format(NOT_FOUND_WITH_ID, giftId)));
         gift.setStatus(status);
         giftRepository.save(gift);
     }
 
     public GiftDTO updateGift(GiftDTO giftDTO) {
         Gift existingGift = giftRepository.findById(giftDTO.id())
-                .orElseThrow(() -> new InvalidRequestException("Gift not found with ID: " + giftDTO.id()));
+                .orElseThrow(() -> new InvalidRequestException(MessageFormat.format(NOT_FOUND_WITH_ID, giftDTO.id())));
         existingGift.setName(giftDTO.name());
         existingGift.setDescription(giftDTO.description());
         existingGift.setAffiliateLink(giftDTO.affiliateLink());
@@ -70,7 +72,7 @@ public class GiftService {
 
     public GiftDTO updateLink(UUID giftId, String affiliateLink) {
         Gift gift = giftRepository.findById(giftId)
-                .orElseThrow(() -> new InvalidRequestException("Gift not found with ID: " + giftId));
+                .orElseThrow(() -> new InvalidRequestException(MessageFormat.format(NOT_FOUND_WITH_ID, giftId)));
         gift.setAffiliateLink(affiliateLink);
         gift.setStatus(GiftStatus.LINKED);
         return giftMapper.toDto(giftRepository.save(gift));
@@ -85,7 +87,7 @@ public class GiftService {
      */
     public GiftDTO fillDesiredGift(UUID id, GiftDTO giftDTO) {
         Gift existingGift = giftRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Gift not found with ID: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(MessageFormat.format(NOT_FOUND_WITH_ID, id)));
         existingGift.setName(giftDTO.name());
         existingGift.setDescription(giftDTO.description());
         existingGift.setStatus(GiftStatus.SELECTED);
@@ -100,7 +102,7 @@ public class GiftService {
 
     public void deleteGift(UUID id) {
         if (!giftRepository.existsById(id)) {
-            throw new IllegalArgumentException("Gift not found with ID: " + id);
+            throw new IllegalArgumentException(MessageFormat.format(NOT_FOUND_WITH_ID, id));
         }
         giftRepository.deleteById(id);
     }

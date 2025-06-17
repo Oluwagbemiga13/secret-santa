@@ -33,30 +33,6 @@ public class SantasListService {
     private final PersonService personService;
     private final UserService userService;
 
-    /**
-     * Validates the SantasListDTO object to ensure all required fields are present and valid.
-     * Throws InvalidRequestException if any validation fails.
-     * TODO: Consider using a validation framework like Hibernate Validator for more complex validations.
-     * TODO: Make
-     *
-     * @param santasListDTO
-     */
-    private void validateSantasList(SantasListDTO santasListDTO) {
-        santasListDTO.persons().forEach(personDTO -> {
-            if (personDTO.name() == null || personDTO.name().isBlank()) {
-                throw new InvalidRequestException("Person name cannot be null or blank");
-            }
-            if (personDTO.email() == null || personDTO.email().isBlank()) {
-                throw new InvalidRequestException("Person email cannot be null or blank");
-            }
-        });
-        if (santasListDTO.name() == null || santasListDTO.name().isBlank()) {
-            throw new InvalidRequestException("Santa's list name cannot be null or blank");
-        }
-        if (santasListDTO.budgetPerGift() <= 0) {
-            throw new InvalidRequestException("Budget per gift must be greater than zero");
-        }
-    }
 
     /**
      * Creates a new Santa's list based on the provided SantasListDTO.
@@ -65,9 +41,8 @@ public class SantasListService {
      * @return
      */
     public SantasListDTO createSantasList(SantasListDTO santasListDTO) {
-        String userUuid = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UUID userUuid =  UUID.fromString(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
 
-        validateSantasList(santasListDTO);
         SantasList newList = SantasList.builder()
                 .creationDate(LocalDate.now())
                 .dueDate(santasListDTO.dueDate())
@@ -103,7 +78,7 @@ public class SantasListService {
         Person person = santasList.getPersons().stream()
                 .filter(p -> p.getId().equals(personId))
                 .findFirst()
-                .orElseThrow(() -> new InvalidRequestException("Person not found with ID: " + personId));
+                .orElseThrow(() -> getInvalidIdException(personId, "Person"));
 
         person.setName(updatedPersonDTO.name());
         person.setEmail(updatedPersonDTO.email());
@@ -125,7 +100,7 @@ public class SantasListService {
         Person person = santasList.getPersons().stream()
                 .filter(p -> p.getId().equals(personId))
                 .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("Person not found with ID: " + personId));
+                .orElseThrow(() -> getInvalidIdException(personId, "Person"));
 
         person.setSantasList(null);
         santasList.getPersons().remove(person);
@@ -165,7 +140,6 @@ public class SantasListService {
      */
     public SantasListDTO updateSantasList(UUID id, SantasListDTO santasListDTO) {
 
-        validateSantasList(santasListDTO);
         log.info("Starting update for SantasList ID: {}", id);
 
         SantasList santasList = findSantasListById(id);
@@ -242,27 +216,40 @@ public class SantasListService {
 
     /**
      * This method is only for INTERNAL usage id does not validate user privilege to view Entity.
+     * DO NOT USE IN CONTROLLER!
      *
      * @param id
      * @return
      */
     public SantasListDTO findById(UUID id) {
         SantasList santasList = santasListRepository.findById(id).orElseThrow(() ->
-                new InvalidRequestException("Santa's list not found with ID: " + id)
+                getInvalidIdException(id, "Santa's list")
         );
         return santasListMapper.toDto(santasList);
     }
 
     /**
-     * This method is only for INTERNAL usage id does not validate user privilege to view Entity
+     * Helper method to create an InvalidRequestException for a given ID and entity type.
      *
-     * @param id
-     * @param listStatus
-     * @return
+     * @param id     The ID that was not found.
+     * @param entity The type of entity (e.g., "Santa's list", "Person").
+     * @return An ResourceNotFoundException with a descriptive message.
+     */
+    private static ResourceNotFoundException getInvalidIdException(UUID id, String entity) {
+        return new ResourceNotFoundException(entity + " not found with ID: "+ id.toString());
+    }
+
+    /**
+     * This method is only for INTERNAL usage id does not validate user privilege to view Entity
+     * DO NOT USE IN CONTROLLER!
+     *
+     * @param id List ID
+     * @param listStatus ListStatus to update to
+     * @return SantasListDTO with updated status
      */
     public SantasListDTO updateStatus(UUID id, ListStatus listStatus) {
         SantasList santasList = santasListRepository.findById(id).orElseThrow(() ->
-                new InvalidRequestException("Santa's list not found with ID: " + id)
+                getInvalidIdException(id, "Santa's list")
         );
 
         santasList.setStatus(listStatus);
@@ -280,7 +267,7 @@ public class SantasListService {
                 santasList.isLocked(),
                 personService.getBySantasListId(id).stream()
                         .map(PersonOverview::new)
-                        .collect(Collectors.toList()),
+                        .toList(),
                 santasList.getStatus().name(),
                 santasList.getBudgetPerGift()
         );
@@ -290,7 +277,6 @@ public class SantasListService {
 
     /**
      * Retrieves all Santa's lists with the specified status.
-     * TODO: Implement security checks to ensure only authorized users can access this method.
      *
      * @param listStatus
      * @return

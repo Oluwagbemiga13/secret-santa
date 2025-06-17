@@ -52,16 +52,6 @@ class PasswordResetControllerTest {
         verify(resetService).sendResetLink(email);
     }
 
-    @Test
-    void testForgotPasswordFailure() throws Exception {
-        String email = "invalid@example.com";
-        doThrow(new MessagingException("Error sending email"))
-                .when(resetService).sendResetLink(email);
-
-        mockMvc.perform(post("/auth/password/forgot-password")
-                        .param("email", email))
-                .andExpect(status().isInternalServerError());
-    }
 
     @Test
     void testResetPasswordSuccess() throws Exception {

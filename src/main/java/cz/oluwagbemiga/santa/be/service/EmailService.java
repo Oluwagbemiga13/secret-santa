@@ -128,7 +128,7 @@ public class EmailService {
                 .append("<p>The North Pole budget limit is <strong>")
                 .append(desiredGift.getBudget()).append("</strong> candy canes! 💰</p>")
                 .append("<p>You’ll be bringing cheer to: <strong>")
-                .append(recipient.getName()).append("</strong> ‍🎄</p>");
+                .append(recipient.getName()).append("</strong> 🎄</p>");
 
         if (desiredGift.getDescription() != null && !desiredGift.getDescription().isEmpty()) {
             resultContent.append("<p>The elves left a clue about the gift: ")

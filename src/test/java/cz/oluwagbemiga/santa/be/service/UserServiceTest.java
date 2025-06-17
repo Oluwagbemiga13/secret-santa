@@ -95,7 +95,7 @@ class UserServiceTest {
     void testFindUserById() {
         when(userRepository.findById(user.getUuid())).thenReturn(Optional.of(user));
 
-        User result = userService.findUserById(user.getUuid().toString());
+        User result = userService.findUserById(user.getUuid());
 
         assertEquals(user, result);
         verify(userRepository, times(1)).findById(user.getUuid());
@@ -105,7 +105,7 @@ class UserServiceTest {
     void testFindUserById_NotFound() {
         when(userRepository.findById(user.getUuid())).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> userService.findUserById(user.getUuid().toString()));
+        assertThrows(ResourceNotFoundException.class, () -> userService.findUserById(user.getUuid()));
         verify(userRepository, times(1)).findById(user.getUuid());
     }
 

@@ -81,7 +81,7 @@ public class PasswordResetService {
     public void cleanupExpiredTokens() {
         List<PasswordResetToken> expired = tokenRepo.findAll().stream()
                 .filter(t -> t.getExpiryDate().isBefore(LocalDateTime.now()))
-                .collect(Collectors.toList());
+                .toList();
         tokenRepo.deleteAll(expired);
         log.debug("Cleaned up {} expired password reset tokens", expired.size());
     }

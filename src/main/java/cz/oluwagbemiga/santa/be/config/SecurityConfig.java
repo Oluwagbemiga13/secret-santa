@@ -1,7 +1,7 @@
-// File: `src/main/java/cz/oluwagbemiga/santa/be/config/SecurityConfig.java`
 package cz.oluwagbemiga.santa.be.config;
 
 import cz.oluwagbemiga.santa.be.security.JwtAuthenticationFilter;
+import cz.oluwagbemiga.santa.be.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,14 +26,25 @@ import java.util.List;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
+    @Value("${jwt.secret}")
+    private String jwtSecret;
 
-    @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter();
-    }
+    @Value("${jwt.expirationMs}")
+    private int jwtExpirationMs;
 
     @Value("${cors.allowed-origins}")
     private String allowedOriginsRaw;
+
+
+    @Bean
+    public JwtUtil jwtUtil() {
+        return new JwtUtil(jwtSecret, jwtExpirationMs);
+    }
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter(jwtUtil());
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -49,18 +60,18 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/api/persons/**").authenticated()
-                        .requestMatchers("/api/gifts/**").permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/swagger-ui/**").permitAll()
-                        .requestMatchers("/api/santas-lists/**").authenticated()
+
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        // Explicitly allow access to these endpoints
                         .requestMatchers("/v3/api-docs/**").permitAll()
-                        .requestMatchers("/api/users/info").authenticated()
                         .requestMatchers("/api/users").permitAll()
                         .requestMatchers("/swagger-ui.html").permitAll()
                         .requestMatchers("/error").permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/auth/password/**").permitAll()
+                        .requestMatchers("/api/gifts/**").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/swagger-ui/**").permitAll()
+                        // Any other request requires authentication
                         .anyRequest().authenticated()
                 );
 
@@ -73,7 +84,6 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.stream(allowedOriginsRaw.split(";")).toList());
-//        configuration.setAllowedOrigins(List.of("http://127.0.0.1:5500", "http://127.0.0.1:5501"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);
