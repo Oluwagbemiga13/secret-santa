@@ -5,7 +5,6 @@ import cz.oluwagbemiga.santa.be.entity.ListStatus;
 import cz.oluwagbemiga.santa.be.entity.Person;
 import cz.oluwagbemiga.santa.be.entity.Role;
 import cz.oluwagbemiga.santa.be.entity.SantasList;
-import cz.oluwagbemiga.santa.be.exception.InvalidRequestException;
 import cz.oluwagbemiga.santa.be.exception.ResourceNotFoundException;
 import cz.oluwagbemiga.santa.be.exception.UnauthorizedAccessException;
 import cz.oluwagbemiga.santa.be.mapper.PersonMapper;
@@ -20,7 +19,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,14 +32,9 @@ public class SantasListService {
     private final UserService userService;
 
 
-    /**
-     * Creates a new Santa's list based on the provided SantasListDTO.
-     *
-     * @param santasListDTO
-     * @return
-     */
+
     public SantasListDTO createSantasList(SantasListDTO santasListDTO) {
-        UUID userUuid =  UUID.fromString(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
+        UUID userUuid = UUID.fromString(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
 
         SantasList newList = SantasList.builder()
                 .creationDate(LocalDate.now())
@@ -236,14 +229,14 @@ public class SantasListService {
      * @return An ResourceNotFoundException with a descriptive message.
      */
     private static ResourceNotFoundException getInvalidIdException(UUID id, String entity) {
-        return new ResourceNotFoundException(entity + " not found with ID: "+ id.toString());
+        return new ResourceNotFoundException(entity + " not found with ID: " + id.toString());
     }
 
     /**
      * This method is only for INTERNAL usage id does not validate user privilege to view Entity
      * DO NOT USE IN CONTROLLER!
      *
-     * @param id List ID
+     * @param id         List ID
      * @param listStatus ListStatus to update to
      * @return SantasListDTO with updated status
      */
@@ -276,13 +269,13 @@ public class SantasListService {
     }
 
     /**
-     * Retrieves all Santa's lists with the specified status.
+     * Only for internal usage, does not validate user privilege to view Data
+     * Don´t use in Controller!
      *
      * @param listStatus
      * @return
      */
     public List<SantasList> getAllByStatus(ListStatus listStatus) {
-        log.warn("This method is not secured. It should only be accessible to authorized users!");
         return santasListRepository.findByStatus(listStatus);
     }
 
