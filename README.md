@@ -108,7 +108,7 @@ docker-compose up --build
 Once the application is running, you can access it at:
 - Swagger UI: http://localhost:8080/swagger-ui.html
 - OpenAPI: http://localhost:8080/v3/api-docs
-- Frontend: http://localhost:5501/login
+- Frontend: http://127.0.0.1:5501/login.html
 
 ---
 
